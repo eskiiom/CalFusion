@@ -10,10 +10,11 @@ Calfusion est une application web qui permet de fusionner des calendriers Google
 - Génération d'un calendrier ICS combiné
 - Interface utilisateur intuitive
 - Support multilingue (FR/EN)
+- Intégration continue avec GitHub Actions
 
 ## Prérequis
 
-- Python 3.8 ou supérieur
+- Python 3.10 ou supérieur
 - pip (gestionnaire de paquets Python)
 - Compte Google avec accès à l'API Calendar
 - Compte iCloud avec mot de passe d'application
@@ -42,12 +43,28 @@ pip install -r requirements.txt
    - Copier le fichier `.env.example` en `.env`
    - Remplir les variables suivantes :
      ```
+     # Google OAuth2 Configuration
      GOOGLE_CLIENT_ID=votre_client_id
      GOOGLE_CLIENT_SECRET=votre_client_secret
-     REDIRECT_URI=http://localhost:5000/oauth2callback
+     REDIRECT_URI=http://votre-domaine:5000/oauth2callback
+     APP_BASE_URL=http://votre-domaine:5000
+
+     # Application Configuration
+     FLASK_ENV=development
+     FLASK_APP=app.py
+     FLASK_HOST=0.0.0.0  # Utiliser 0.0.0.0 pour écouter sur toutes les interfaces
+     FLASK_PORT=5000     # Port par défaut, peut être modifié selon vos besoins
      SECRET_KEY=votre_clé_secrète
+
+     # iCloud Configuration
      ICLOUD_CALDAV_URL=https://caldav.icloud.com
      ```
+
+   Notes importantes :
+   - Pour le développement local, utilisez votre adresse IP locale (ex: 192.168.0.109) comme domaine
+   - Pour la production, utilisez votre nom de domaine réel
+   - `FLASK_HOST=0.0.0.0` permet à l'application d'être accessible depuis n'importe quelle adresse
+   - Assurez-vous que le port choisi est ouvert sur votre pare-feu
 
 5. Initialiser la base de données :
 ```bash
@@ -75,26 +92,34 @@ flask db upgrade
 
 ```
 calfusion/
-├── app.py              # Application principale
-├── requirements.txt    # Dépendances
-├── .env               # Configuration
-├── static/            # Fichiers statiques
+├── app.py                # Application principale
+├── requirements.txt      # Dépendances
+├── pyproject.toml       # Configuration du projet Python
+├── .env.example         # Template des variables d'environnement
+├── static/              # Fichiers statiques
 │   └── combined_calendar.ics
-├── templates/         # Templates HTML
+├── templates/           # Templates HTML
 │   ├── index.html
 │   ├── add_icloud.html
 │   └── base.html
-└── instance/          # Base de données SQLite
+├── tests/              # Tests unitaires
+│   ├── conftest.py
+│   └── test_app.py
+├── .github/            # Configuration GitHub Actions
+│   └── workflows/
+│       └── python-app.yml
+└── instance/           # Base de données SQLite
     └── calfusion.db
 ```
 
 ## Dépendances Principales
 
-- Flask : Framework web
+- Flask==3.0.2 : Framework web
 - SQLAlchemy : ORM pour la base de données
-- google-auth-oauthlib : Authentification Google
-- caldav : Client CalDAV pour iCloud
-- icalendar : Gestion des fichiers ICS
+- google-auth-oauthlib==1.2.0 : Authentification Google
+- caldav==1.3.9 : Client CalDAV pour iCloud
+- vobject==0.9.6.1 : Gestion des fichiers ICS
+- pytest : Tests unitaires
 
 ## Utilisation
 
@@ -103,7 +128,9 @@ calfusion/
 python app.py
 ```
 
-2. Ouvrir un navigateur et aller à `http://localhost:5000`
+2. Ouvrir un navigateur et aller à l'URL configurée dans APP_BASE_URL
+   - En local : http://votre-ip:5000 (ex: http://192.168.0.109:5000)
+   - En production : http://votre-domaine:5000
 
 3. Connecter vos calendriers :
    - Cliquer sur "Ajouter un calendrier Google"
@@ -128,12 +155,25 @@ python app.py
 python -m pytest
 ```
 
+### CI/CD
+Le projet utilise GitHub Actions pour :
+- Exécuter les tests automatiquement
+- Vérifier la sécurité des dépendances
+- Construire le package Python
+- Vérifier la compatibilité Python 3.10
+
 ### Contribution
 1. Fork le projet
 2. Créer une branche (`git checkout -b feature/AmazingFeature`)
 3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
+
+## Sécurité
+
+- Ne jamais commiter le fichier `.env` contenant vos secrets
+- Utiliser des mots de passe d'application pour iCloud
+- Les secrets GitHub sont utilisés pour les tests CI/CD
 
 ## Licence
 

@@ -20,10 +20,11 @@ load_dotenv()
 # Configuration pour autoriser HTTP en développement local
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-# Définition des chemins
+# Définition des chemins et URLs
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 CALENDAR_FILE = os.path.join(STATIC_DIR, 'combined_calendar.ics')
+APP_BASE_URL = os.getenv('APP_BASE_URL', 'http://localhost:5000')
 
 # Création du dossier static s'il n'existe pas
 if not os.path.exists(STATIC_DIR):
@@ -416,4 +417,6 @@ def toggle_calendar(calendar_id):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    host = os.getenv('FLASK_HOST', '127.0.0.1')
+    port = int(os.getenv('FLASK_PORT', 5000))
+    app.run(host=host, port=port, debug=True) 
