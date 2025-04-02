@@ -7,6 +7,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Non publié]
 
+### Planifié
+- Système d'authentification utilisateur via Google OAuth2
+- Gestion des utilisateurs avec base de données dédiée
+- URLs uniques et sécurisées pour les calendriers combinés
+- Interface de gestion de profil utilisateur
+
 ### Ajouté
 - Interface responsive pour les appareils mobiles
 - Mise en page adaptative pour les petits écrans
@@ -21,6 +27,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Styles personnalisés pour les boutons d'ajout de calendrier
 - Intégration de Font Awesome 6.5.1 pour les icônes
 - Variables CSS pour la gestion des couleurs de bordure des calendriers
+- Sélecteur de couleur pour personnaliser la couleur de chaque calendrier
+- Retour visuel lors du changement de couleur (animation de succès/erreur)
+- Tooltips bilingues pour le sélecteur de couleur
 
 ### Modifié
 - Optimisation de la mise en page pour les appareils mobiles
@@ -32,6 +41,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Mise à jour du style des boutons d'action pour une meilleure cohérence visuelle
 - Optimisation du code CSS pour éviter les erreurs de linter
 - Remplacement de l'alerte de copie par un tooltip dynamique
+- Amélioration de l'interface utilisateur avec des animations fluides
+- Optimisation du code JavaScript pour une meilleure gestion des états
+- Mise à jour de la ROADMAP pour inclure l'authentification utilisateur
 
 ### Technique
 - Implémentation de Media Queries pour la réactivité
@@ -41,4 +53,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Utilisation des CSS Custom Properties pour la gestion des couleurs
 - Amélioration de la maintenabilité du code CSS
 - Correction des erreurs de linter dans les templates
-- Initialisation automatique des tooltips Bootstrap 
+- Initialisation automatique des tooltips Bootstrap
+- Nouvelle route API pour la mise à jour des couleurs de calendrier
+- Validation des couleurs côté serveur
+- Gestion des erreurs avec restauration automatique 
