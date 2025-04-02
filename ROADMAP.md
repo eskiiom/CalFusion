@@ -5,7 +5,7 @@
 - [x] Ajouter un indicateur de chargement pendant la synchronisation
 - [x] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
 - [x] Ajouter des tooltips pour expliquer les fonctionnalités
-- [ ] Améliorer la réactivité mobile
+- [x] Améliorer la réactivité mobile
 
 ## 2. Fonctionnalités de Personnalisation
 - [ ] Permettre de changer la couleur des calendriers

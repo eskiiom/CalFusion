@@ -8,6 +8,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Non publié]
 
 ### Ajouté
+- Interface responsive pour les appareils mobiles
+- Mise en page adaptative pour les petits écrans
+- Interactions tactiles optimisées
 - Message d'information sur le temps de synchronisation des calendriers
 - Mise à jour des tooltips avec des informations sur le temps d'attente
 - Indicateur de chargement pendant la synchronisation des calendriers
@@ -20,6 +23,9 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Variables CSS pour la gestion des couleurs de bordure des calendriers
 
 ### Modifié
+- Optimisation de la mise en page pour les appareils mobiles
+- Ajustement des tailles de police et espacements pour le mobile
+- Amélioration de l'ergonomie des boutons et contrôles sur mobile
 - Amélioration du retour visuel lors de l'activation/désactivation des calendriers
 - Remplacement des alertes par des animations et transitions
 - Amélioration de l'interface utilisateur avec des couleurs spécifiques pour chaque service
@@ -28,6 +34,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Remplacement de l'alerte de copie par un tooltip dynamique
 
 ### Technique
+- Implémentation de Media Queries pour la réactivité
+- Optimisation des performances sur mobile
 - Ajout d'animations CSS pour le retour visuel
 - Gestion des états de synchronisation avec classes CSS
 - Utilisation des CSS Custom Properties pour la gestion des couleurs
