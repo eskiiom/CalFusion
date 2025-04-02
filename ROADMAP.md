@@ -6,20 +6,23 @@ Ce document décrit les fonctionnalités et améliorations prévues pour les pro
 
 ### Améliorations de l'Interface
 - [ ] Ajout d'un thème sombre
-- [ ] Interface responsive pour mobile
+- [x] Interface responsive pour mobile
 - [ ] Prévisualisation des événements avant fusion
-- [ ] Indicateurs de statut de synchronisation en temps réel
+- [x] Indicateurs de statut de synchronisation en temps réel
+- [x] Support complet des couleurs personnalisées
 
 ### Fonctionnalités des Calendriers
 - [ ] Support des catégories de calendriers
 - [ ] Filtres par date pour la fusion
 - [ ] Support des pièces jointes des événements
 - [ ] Gestion des participants aux événements
+- [x] Support des emojis et caractères spéciaux
+- [x] Synchronisation des couleurs personnalisées
 
 ### Performance et Stabilité
 - [ ] Mise en cache des calendriers pour réduire les appels API
-- [ ] Optimisation des requêtes CalDAV
-- [ ] Gestion améliorée des erreurs de connexion
+- [x] Optimisation des requêtes CalDAV
+- [x] Gestion améliorée des erreurs de connexion
 - [ ] Système de retry automatique en cas d'échec
 
 ## Version 1.3.0

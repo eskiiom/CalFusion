@@ -50,19 +50,43 @@
     min-height: 20px;
 }
 
-.calendar-icon {
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 24px;
-    text-align: center;
+.calendar-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
 }
 
-.google-icon {
+.calendar-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    margin-right: 10px;
+}
+
+.calendar-icon i {
+    font-size: 16px;
+}
+
+.fab.fa-google {
     color: #4285F4;
 }
 
-.icloud-icon {
+.fab.fa-apple {
     color: #999999;
+}
+
+.far.fa-calendar {
+    color: #666666;
+}
+
+.calendar-name {
+    margin-left: 10px;
+    flex-grow: 1;
+}
+
+.color-picker-wrapper {
+    margin-left: auto;
 }
 
 .copy-section {
@@ -219,34 +243,35 @@
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        L'activation ou la désactivation d'un calendrier peut prendre de quelques secondes à quelques minutes
-                        selon la taille du calendrier.
+                        L'activation ou la désactivation d'un calendrier peut prendre quelques secondes à quelques minutes selon la taille du calendrier.
                     </div>
 
                     <div class="list-group">
                         {% for calendar in calendars %}
                         <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center flex-grow-1">
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input calendar-toggle" 
                                            id="calendar-{{ calendar.id }}" 
                                            data-calendar-id="{{ calendar.id }}"
                                            {% if calendar.active %}checked{% endif %}>
                                 </div>
-                                {% if calendar.source.type == 'google' %}
-                                    <i class="fab fa-google text-primary ms-2"></i>
-                                {% elif calendar.source.type == 'icloud' %}
-                                    <i class="fab fa-apple text-secondary ms-2"></i>
-                                {% else %}
-                                    <i class="far fa-calendar text-info ms-2"></i>
-                                {% endif %}
-                                <label class="ms-2 form-check-label" for="calendar-{{ calendar.id }}">
-                                    {{ calendar.name }}
-                                </label>
+                                <div class="calendar-info">
+                                    <div class="calendar-icon">
+                                        {% if calendar.calendar_source.type == 'google' %}
+                                            <i class="fab fa-google"></i>
+                                        {% elif calendar.calendar_source.type == 'icloud' %}
+                                            <i class="fab fa-apple"></i>
+                                        {% else %}
+                                            <i class="far fa-calendar"></i>
+                                        {% endif %}
+                                    </div>
+                                    <span class="calendar-name">{{ calendar.name }}</span>
+                                </div>
                             </div>
                             <div class="color-picker-wrapper">
                                 <input type="color" class="form-control form-control-color calendar-color" 
-                                       value="{{ calendar.color }}" 
+                                       value="{{ calendar.display_color }}" 
                                        data-calendar-id="{{ calendar.id }}"
                                        title="Choisir la couleur">
                             </div>

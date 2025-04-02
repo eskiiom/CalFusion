@@ -5,6 +5,23 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-04-03
+
+### Ajouté
+- Support des couleurs RGBA des calendriers iCloud
+- Conversion automatique des couleurs RGBA en RGB pour l'affichage
+- Amélioration de l'interface utilisateur pour les icônes de calendriers
+
+### Modifié
+- Correction de l'alignement des icônes de calendriers
+- Amélioration de l'affichage des couleurs de calendriers
+- Optimisation du stockage des couleurs en format RGBA
+
+### Corrigé
+- Correction de l'affichage des couleurs noires pour les calendriers iCloud
+- Correction de l'alignement des icônes Apple et Google
+- Amélioration de la compatibilité avec les couleurs personnalisées
+
 ## [1.1.0] - 2025-04-03
 
 ### Ajouté

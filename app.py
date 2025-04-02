@@ -82,21 +82,27 @@ class CalendarSource(db.Model):
     is_connected = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
-    calendars = db.relationship('Calendar', backref='source', lazy=True)
+    calendars = db.relationship('Calendar', backref='calendar_source', lazy=True)
 
     def __repr__(self):
         return f'<CalendarSource {self.name} ({self.type})>'
 
 class Calendar(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    source_id = db.Column(db.Integer, db.ForeignKey('calendar_source.id'), nullable=False)
-    calendar_id = db.Column(db.String(500), nullable=False)
     name = db.Column(db.String(200), nullable=False)
-    color = db.Column(db.String(7), default='#4285F4')  # Format: #RRGGBB
+    calendar_id = db.Column(db.String(500), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('calendar_source.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    color = db.Column(db.String(9), nullable=False, default='#FF9500FF')  # Format: #RRGGBBAA
+    order = db.Column(db.Integer, default=0)  # Pour stocker calendar-order
+    description = db.Column(db.Text)  # Pour stocker calendar-description
+    last_modified = db.Column(db.DateTime, default=datetime.now(UTC))
+
+    @property
+    def display_color(self):
+        """Retourne la couleur au format RGB pour l'affichage."""
+        return rgba_to_rgb(self.color)
 
     def __repr__(self):
         return f'<Calendar {self.name}>'
@@ -389,9 +395,6 @@ def add_icloud_calendar():
                 ).first()
                 
                 if not existing_calendar:
-                    display_name = None
-                    
-                    # Débug: Afficher toutes les propriétés disponibles
                     try:
                         app.logger.info(f"Débug - Examen des propriétés pour le calendrier: {cal.url.path}")
                         
@@ -420,21 +423,52 @@ def add_icloud_calendar():
                         )
                         
                         app.logger.info(f"Réponse PROPFIND: {response.status_code}")
-                        app.logger.info(f"Contenu de la réponse: {response.text}")
+                        app.logger.debug(f"Contenu de la réponse: {response.text}")
+                        
+                        display_name = None
+                        calendar_color = '#FF9500FF'  # Couleur par défaut avec alpha
+                        calendar_order = 0
+                        calendar_description = None
                         
                         if response.status_code == 207:  # Multi-Status
                             from xml.etree import ElementTree
                             root = ElementTree.fromstring(response.content)
                             
-                            # Recherche du displayname dans la réponse XML
-                            for prop in root.findall('.//{DAV:}displayname'):
-                                if prop.text:
-                                    display_name = prop.text.strip()
-                                    app.logger.info(f"Nom trouvé via PROPFIND direct: {display_name}")
-                                    break
+                            # Recherche des propriétés dans la réponse XML
+                            for propstat in root.findall('.//{DAV:}propstat'):
+                                status = propstat.find('{DAV:}status')
+                                if status is not None and '200 OK' in status.text:
+                                    prop = propstat.find('{DAV:}prop')
+                                    if prop is not None:
+                                        # Nom du calendrier
+                                        displayname_elem = prop.find('{DAV:}displayname')
+                                        if displayname_elem is not None and displayname_elem.text:
+                                            display_name = displayname_elem.text.strip()
+                                            app.logger.info(f"Nom trouvé via PROPFIND: {display_name}")
+                                        
+                                        # Couleur du calendrier
+                                        color_elem = prop.find('{http://apple.com/ns/ical/}calendar-color')
+                                        if color_elem is not None and color_elem.text:
+                                            calendar_color = color_elem.text.strip()
+                                            app.logger.info(f"Couleur trouvée: {calendar_color}")
+                                        
+                                        # Ordre du calendrier
+                                        order_elem = prop.find('{http://apple.com/ns/ical/}calendar-order')
+                                        if order_elem is not None and order_elem.text:
+                                            try:
+                                                calendar_order = int(order_elem.text.strip())
+                                                app.logger.info(f"Ordre trouvé: {calendar_order}")
+                                            except ValueError:
+                                                app.logger.warning(f"Ordre invalide: {order_elem.text}")
+                                        
+                                        # Description du calendrier
+                                        desc_elem = prop.find('{urn:ietf:params:xml:ns:caldav}calendar-description')
+                                        if desc_elem is not None and desc_elem.text:
+                                            calendar_description = desc_elem.text.strip()
+                                            app.logger.info(f"Description trouvée: {calendar_description}")
                             
                     except Exception as e:
-                        app.logger.warning(f"Erreur lors de la récupération des propriétés via PROPFIND direct: {str(e)}")
+                        app.logger.warning(f"Erreur lors de la récupération des propriétés via PROPFIND: {str(e)}")
 
                     # Si le nom n'est pas trouvé, utiliser l'ID avec mapping
                     if not display_name:
@@ -457,8 +491,11 @@ def add_icloud_calendar():
                         name=display_name,
                         source_id=icloud_source.id,
                         calendar_id=cal.url.path,
-                        color='#FF9500',
-                        user_id=current_user.id
+                        color=calendar_color,
+                        order=calendar_order,
+                        description=calendar_description,
+                        user_id=current_user.id,
+                        last_modified=datetime.now(UTC)
                     )
                     db.session.add(new_calendar)
                     app.logger.info(f"Calendrier ajouté à la base de données: {display_name}")
@@ -989,6 +1026,22 @@ def migrate_to_sources():
 with app.app_context():
     db.create_all()  # Créer les nouvelles tables
     migrate_to_sources()  # Migrer les données
+
+def rgba_to_rgb(rgba_color):
+    """Convertit une couleur RGBA en RGB."""
+    if not rgba_color:
+        return '#FF9500'
+    
+    # Si la couleur est déjà au format RGB (#RRGGBB)
+    if len(rgba_color) == 7:
+        return rgba_color
+        
+    # Si la couleur est au format RGBA (#RRGGBBAA)
+    if len(rgba_color) == 9:
+        return rgba_color[:7]
+        
+    # Format invalide, retourner la couleur par défaut
+    return '#FF9500'
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
