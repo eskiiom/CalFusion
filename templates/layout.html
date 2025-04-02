@@ -9,14 +9,61 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0 auto;
-            padding: 10px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-                max-width: 1200px;
+        .navbar {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-brand {
+            color: #0d6efd;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: #495057;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
+
+        .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
             }
         }
 
@@ -87,22 +134,28 @@
     </style>
 </head>
 <body>
-    <!-- Debug info -->
-    {% if current_user %}
-    <div class="alert alert-info">
-        Debug: User is {{ 'authenticated' if current_user.is_authenticated else 'not authenticated' }}
-        {% if current_user.is_authenticated %}
-        ({{ current_user.email }})
-        {% endif %}
-    </div>
-    {% else %}
-    <div class="alert alert-warning">
-        Debug: No current_user object
-    </div>
-    {% endif %}
-    <!-- End debug info -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">CalFusion</a>
+            {% if current_user.is_authenticated %}
+            <div class="navbar-nav">
+                <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" 
+                   href="{{ url_for('index') }}">
+                    <i class="fas fa-calendar-alt"></i> Calendriers
+                </a>
+                <a class="nav-link {% if request.endpoint == 'manage_sources' %}active{% endif %}" 
+                   href="{{ url_for('manage_sources') }}">
+                    <i class="fas fa-cog"></i> Sources
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Se déconnecter
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
 
-    <div class="container">
+    <div class="main-content">
         <div class="header">
             <h1>CalFusion</h1>
             {% if current_user and current_user.is_authenticated %}

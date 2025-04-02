@@ -1,51 +1,72 @@
 # Roadmap Calfusion
 
-## 1. Améliorations de l'Interface Utilisateur
-- [x] Ajouter des icônes pour différencier les calendriers Google et iCloud
-- [x] Ajouter un indicateur de chargement pendant la synchronisation
-- [x] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
-- [x] Ajouter des tooltips pour expliquer les fonctionnalités
-- [x] Améliorer la réactivité mobile
+Ce document décrit les fonctionnalités et améliorations prévues pour les prochaines versions de Calfusion.
 
-## 2. Fonctionnalités de Personnalisation
-- [x] Permettre de changer la couleur des calendriers
-- [ ] Ajouter un préfixe personnalisable pour chaque calendrier
-- [ ] Ajouter une option pour masquer les événements passés
-- [ ] Permettre de réorganiser l'ordre des calendriers
-- [ ] Ajouter des filtres par date
+## Version 1.2.0 (Prochaine version)
 
-## 3. Authentification et Gestion des Utilisateurs
-- [x] Ajouter l'authentification avec Google OAuth2
-- [x] Gérer les sessions utilisateur
-- [x] Sécuriser les routes avec @login_required
-- [x] Générer des URLs uniques pour chaque calendrier combiné
-- [x] Nettoyer les sessions et messages flash lors de la déconnexion
-- [ ] Ajouter une page de profil utilisateur
-- [ ] Ajouter l'authentification GitHub (optionnel)
+### Améliorations de l'Interface
+- [ ] Ajout d'un thème sombre
+- [ ] Interface responsive pour mobile
+- [ ] Prévisualisation des événements avant fusion
+- [ ] Indicateurs de statut de synchronisation en temps réel
 
-## 4. Améliorations Techniques
-- [ ] Implémenter un système de cache pour les calendriers
-- [ ] Ajouter une synchronisation automatique périodique
-- [ ] Améliorer les logs pour le débogage
-- [ ] Optimiser les requêtes à l'API Google Calendar
-- [ ] Ajouter des tests unitaires
+### Fonctionnalités des Calendriers
+- [ ] Support des catégories de calendriers
+- [ ] Filtres par date pour la fusion
+- [ ] Support des pièces jointes des événements
+- [ ] Gestion des participants aux événements
 
-## 5. Sécurité et Performance
-- [ ] Renforcer la validation des entrées utilisateur
-- [ ] Implémenter une limitation de taux (rate limiting)
-- [ ] Améliorer le stockage sécurisé des credentials
-- [ ] Implémenter un système de backup des données
+### Performance et Stabilité
+- [ ] Mise en cache des calendriers pour réduire les appels API
+- [ ] Optimisation des requêtes CalDAV
+- [ ] Gestion améliorée des erreurs de connexion
+- [ ] Système de retry automatique en cas d'échec
 
-## 6. Documentation
-- [ ] Créer une documentation utilisateur
-- [ ] Documenter l'API
-- [ ] Ajouter des commentaires dans le code
-- [ ] Créer un guide de contribution
-- [ ] Documenter les procédures de déploiement
+## Version 1.3.0
 
-## Priorités
-1. Authentification et Gestion des Utilisateurs (Sécurité)
-2. Améliorations Techniques (Stabilité)
-3. Fonctionnalités de Personnalisation (Utilité)
-4. Sécurité et Performance (Robustesse)
-5. Documentation (Support) 
+### Nouvelles Sources de Calendriers
+- [ ] Support d'Outlook/Exchange
+- [ ] Support de Nextcloud
+- [ ] Support de CalDAV générique
+- [ ] Import de fichiers ICS locaux
+
+### Fonctionnalités Avancées
+- [ ] Règles de fusion personnalisables
+- [ ] Synchronisation bidirectionnelle
+- [ ] Notifications d'événements
+- [ ] Export vers différents formats
+
+### Sécurité et Administration
+- [ ] Support de l'authentification 2FA
+- [ ] Panel d'administration
+- [ ] Journalisation détaillée
+- [ ] Sauvegarde automatique des configurations
+
+## Version 2.0.0
+
+### Architecture
+- [ ] Migration vers une architecture microservices
+- [ ] API REST publique
+- [ ] Support de WebSocket pour les mises à jour en temps réel
+- [ ] Conteneurisation complète avec Docker
+
+### Fonctionnalités Enterprise
+- [ ] Support multi-tenant
+- [ ] Gestion des équipes et des groupes
+- [ ] Intégration LDAP/Active Directory
+- [ ] Rapports et analyses d'utilisation
+
+### Intégrations
+- [ ] Webhooks personnalisables
+- [ ] Intégration avec Slack/Teams
+- [ ] Plugin pour les principaux clients de messagerie
+- [ ] API pour développeurs tiers
+
+## Suggestions de la Communauté
+
+Cette section sera mise à jour régulièrement avec les suggestions des utilisateurs :
+
+- [ ] Support d'autres langues
+- [ ] Thèmes personnalisables
+- [ ] Applications mobiles natives
+- [ ] Widget de calendrier embarqué 

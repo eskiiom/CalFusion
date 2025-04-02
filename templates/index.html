@@ -1,422 +1,366 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalFusion - Centralisez vos calendriers</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0 auto;
-            padding: 10px;
-        }
+{% extends "layout.html" %}
 
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-                max-width: 1200px;
-            }
-        }
+{% block title %}Vos calendriers - CalFusion{% endblock %}
 
-        h1 {
-            color: #1a73e8;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-        }
+{% block additional_styles %}
+.calendar-list {
+    margin: 20px 0;
+}
 
-        @media (min-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-                margin-bottom: 1.5rem;
-            }
-        }
+.calendar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-left: 4px solid;
+    margin: 8px 0;
+    background-color: #f8f9fa;
+    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    flex-wrap: wrap;
+    gap: 8px;
+}
 
-        .calendar-list {
-            margin: 20px 0;
-        }
+@media (max-width: 576px) {
+    .calendar-item {
+        padding: 8px;
+    }
 
-        .calendar-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-left: 4px solid;
-            margin: 8px 0;
-            background-color: #f8f9fa;
-            transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+    .calendar-item .flex-grow-1 {
+        width: 100%;
+        order: 1;
+        margin-top: 4px;
+    }
 
-        @media (max-width: 576px) {
-            .calendar-item {
-                padding: 8px;
-            }
+    .calendar-toggle {
+        order: 0;
+        transform: scale(1.2);
+    }
 
-            .calendar-item .flex-grow-1 {
-                width: 100%;
-                order: 1;
-                margin-top: 4px;
-            }
+    .calendar-icon {
+        order: 0;
+    }
 
-            .calendar-toggle {
-                order: 0;
-                transform: scale(1.2);
-            }
+    .spinner-border-sm {
+        order: 0;
+    }
+}
 
-            .calendar-icon {
-                order: 0;
-            }
+.calendar-toggle {
+    margin-right: 15px;
+    min-width: 20px;
+    min-height: 20px;
+}
 
-            .spinner-border-sm {
-                order: 0;
-            }
-        }
+.calendar-icon {
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 24px;
+    text-align: center;
+}
 
-        .calendar-toggle {
-            margin-right: 15px;
-            min-width: 20px;
-            min-height: 20px;
-        }
+.google-icon {
+    color: #4285F4;
+}
 
-        .calendar-icon {
-            margin-right: 15px;
-            font-size: 1.2em;
-            width: 24px;
-            text-align: center;
-        }
+.icloud-icon {
+    color: #999999;
+}
 
-        .google-icon {
-            color: #4285F4;
-        }
+.copy-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #e8f0fe;
+    border-radius: 4px;
+}
 
-        .icloud-icon {
-            color: #999999;
-        }
+.copy-url {
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
 
-        .copy-section {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #e8f0fe;
-            border-radius: 4px;
-        }
+@media (max-width: 576px) {
+    .copy-url {
+        font-size: 12px;
+        padding: 6px;
+    }
+}
 
-        .copy-url {
-            padding: 8px;
-            width: 100%;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+.btn-google, .btn-icloud {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
 
-        @media (max-width: 576px) {
-            .copy-url {
-                font-size: 12px;
-                padding: 6px;
-            }
-        }
+@media (max-width: 576px) {
+    .btn-google, .btn-icloud {
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
 
-        .btn-google, .btn-icloud {
-            width: 100%;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
+.btn-google {
+    background-color: #4285F4;
+    color: white;
+}
 
-        @media (max-width: 576px) {
-            .btn-google, .btn-icloud {
-                padding: 12px;
-                font-size: 1rem;
-            }
-        }
+.btn-google:hover {
+    background-color: #357ABD;
+    color: white;
+}
 
-        .btn-google {
-            background-color: #4285F4;
-            color: white;
-        }
+.btn-icloud {
+    background-color: #999999;
+    color: white;
+}
 
-        .btn-google:hover {
-            background-color: #357ABD;
-            color: white;
-        }
+.btn-icloud:hover {
+    background-color: #777777;
+    color: white;
+}
 
-        .btn-icloud {
-            background-color: #999999;
-            color: white;
-        }
+.border-color {
+    border-left-color: var(--calendar-color);
+}
 
-        .btn-icloud:hover {
-            background-color: #777777;
-            color: white;
-        }
-        
-        .border-color {
-            border-left-color: var(--calendar-color);
-        }
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+}
 
-        .tooltip-inner {
-            max-width: 300px;
-            text-align: left;
-        }
+@media (max-width: 576px) {
+    .tooltip-inner {
+        max-width: 200px;
+        font-size: 14px;
+    }
+}
 
-        @media (max-width: 576px) {
-            .tooltip-inner {
-                max-width: 200px;
-                font-size: 14px;
-            }
-        }
+.calendar-item.syncing {
+    opacity: 0.7;
+    background-color: #e9ecef;
+}
 
-        .calendar-item.syncing {
-            opacity: 0.7;
-            background-color: #e9ecef;
-        }
+.calendar-item.success {
+    animation: successPulse 1s ease-in-out;
+}
 
-        .calendar-item.success {
-            animation: successPulse 1s ease-in-out;
-        }
+.calendar-item.error {
+    animation: errorShake 0.5s ease-in-out;
+}
 
-        .calendar-item.error {
-            animation: errorShake 0.5s ease-in-out;
-        }
+.calendar-color-picker {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+    margin-left: 10px;
+}
 
-        @keyframes successPulse {
-            0% { background-color: #f8f9fa; }
-            50% { background-color: #d4edda; }
-            100% { background-color: #f8f9fa; }
-        }
+.calendar-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
 
-        @keyframes errorShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
+.calendar-color-picker::-webkit-color-swatch {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+}
 
-        .spinner-border-sm {
-            margin-left: 10px;
-            display: none;
-        }
+.calendar-color-picker::-moz-color-swatch {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+}
 
-        .syncing .spinner-border-sm {
-            display: inline-block;
-        }
+@media (max-width: 576px) {
+    .calendar-color-picker {
+        width: 25px;
+        height: 25px;
+        margin-left: 8px;
+    }
+}
 
-        .alert {
-            font-size: 0.9rem;
-            padding: 12px;
-        }
+@keyframes successPulse {
+    0% { background-color: #f8f9fa; }
+    50% { background-color: #d4edda; }
+    100% { background-color: #f8f9fa; }
+}
 
-        @media (max-width: 576px) {
-            .alert {
-                font-size: 0.85rem;
-                padding: 10px;
-            }
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
 
-            .alert ul {
-                padding-left: 20px;
-                margin-bottom: 0;
-            }
-        }
+.spinner-border-sm {
+    margin-left: 10px;
+    display: none;
+}
 
-        .card {
-            margin-bottom: 1rem;
-        }
+.syncing .spinner-border-sm {
+    display: inline-block;
+}
+{% endblock %}
 
-        @media (max-width: 768px) {
-            .container {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Vos calendriers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        L'activation ou la désactivation d'un calendrier peut prendre de quelques secondes à quelques minutes
+                        selon la taille du calendrier.
+                    </div>
 
-            .row {
-                margin-left: -10px;
-                margin-right: -10px;
-            }
-
-            .col-md-8, .col-md-4 {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="mb-4">CalFusion</h1>
-        
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Vos calendriers</h5>
-                        <div class="alert alert-info mb-3">
-                            <i class="fa-solid fa-circle-info me-2"></i>
-                            L'activation ou la désactivation d'un calendrier peut prendre de quelques secondes à quelques minutes selon la taille du calendrier.
-                        </div>
-                        <div class="calendar-list">
-                            {% for calendar in calendars %}
-                            <div class="calendar-item border-color" style="--calendar-color: {{ calendar.color }}" id="calendar-{{ calendar.id }}">
-                                <input type="checkbox" class="calendar-toggle" 
-                                       data-calendar-id="{{ calendar.id }}"
-                                       data-bs-toggle="tooltip"
-                                       data-bs-placement="left"
-                                       title="Activer/Désactiver ce calendrier dans la fusion (peut prendre quelques secondes à quelques minutes) | Enable/Disable this calendar in the fusion (may take a few seconds to a few minutes)"
-                                       {% if calendar.active %}checked{% endif %}>
-                                <i class="calendar-icon {% if calendar.type == 'google' %}fa-brands fa-google google-icon{% else %}fa-brands fa-apple icloud-icon{% endif %}"
-                                   data-bs-toggle="tooltip"
-                                   data-bs-placement="top"
-                                   title="{% if calendar.type == 'google' %}Calendrier Google synchronisé via l'API Google Calendar | Google Calendar synced via Google Calendar API{% else %}Calendrier iCloud synchronisé via CalDAV | iCloud Calendar synced via CalDAV{% endif %}"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ calendar.name }}</strong><br>
-                                    <small>Type: {{ calendar.type }}</small>
+                    <div class="list-group">
+                        {% for calendar in calendars %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input calendar-toggle" 
+                                           id="calendar-{{ calendar.id }}" 
+                                           data-calendar-id="{{ calendar.id }}"
+                                           {% if calendar.active %}checked{% endif %}>
                                 </div>
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Synchronisation...</span>
-                                </div>
+                                {% if calendar.source.type == 'google' %}
+                                    <i class="fab fa-google text-primary ms-2"></i>
+                                {% elif calendar.source.type == 'icloud' %}
+                                    <i class="fab fa-apple text-secondary ms-2"></i>
+                                {% else %}
+                                    <i class="far fa-calendar text-info ms-2"></i>
+                                {% endif %}
+                                <label class="ms-2 form-check-label" for="calendar-{{ calendar.id }}">
+                                    {{ calendar.name }}
+                                </label>
                             </div>
-                            {% endfor %}
+                            <div class="color-picker-wrapper">
+                                <input type="color" class="form-control form-control-color calendar-color" 
+                                       value="{{ calendar.color }}" 
+                                       data-calendar-id="{{ calendar.id }}"
+                                       title="Choisir la couleur">
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Ajouter un calendrier</h5>
-                        <div class="d-grid gap-2">
-                            <a href="{{ url_for('add_google_calendar') }}" class="btn btn-google"
-                               data-bs-toggle="tooltip"
-                               data-bs-placement="left"
-                               title="Connectez-vous avec votre compte Google pour importer vos calendriers | Sign in with your Google account to import your calendars">
-                                <i class="fa-brands fa-google me-2"></i>Ajouter un calendrier Google
-                            </a>
-                            <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-icloud"
-                               data-bs-toggle="tooltip"
-                               data-bs-placement="left"
-                               title="Utilisez votre identifiant Apple et un mot de passe d'application pour importer vos calendriers | Use your Apple ID and an app-specific password to import your calendars">
-                                <i class="fa-brands fa-apple me-2"></i>Ajouter un calendrier iCloud
-                            </a>
-                        </div>
-                    </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ajouter un calendrier</h5>
                 </div>
-                
-                <div class="card mt-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Calendrier combiné</h5>
-                        <p class="card-text">Accédez à votre calendrier combiné via ce lien :</p>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control copy-url" id="calendarUrl" 
-                                   value="{{ url_for('get_combined_calendar', _external=True) }}" 
-                                   readonly
-                                   data-bs-toggle="tooltip"
-                                   data-bs-placement="top"
-                                   title="URL de votre calendrier combiné - Utilisez cette URL pour vous abonner dans votre application de calendrier | Your combined calendar URL - Use this URL to subscribe in your calendar application">
-                            <button class="btn btn-outline-secondary" type="button" 
-                                    onclick="copyUrl()"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="right"
-                                    title="Copier l'URL dans le presse-papiers | Copy URL to clipboard">
-                                Copier
-                            </button>
-                        </div>
-                        <div class="alert alert-info">
-                            <small>
-                                Note importante : Pour utiliser ce calendrier en tant qu'abonnement :
-                                <ul>
-                                    <li>L'URL doit être accessible depuis Internet (actuellement en localhost)</li>
-                                    <li>Dans Outlook : Utilisez "Ajouter un calendrier" > "À partir d'Internet"</li>
-                                    <li>Dans Google Calendar : "Ajouter d'autres agendas" > "À partir d'une URL"</li>
-                                    <li>Dans Apple Calendar : "Fichier" > "Nouvel abonnement au calendrier"</li>
-                                </ul>
-                                En développement local (localhost), vous devrez télécharger et importer le fichier manuellement.
-                            </small>
-                        </div>
+                <div class="card-body">
+                    <a href="{{ url_for('add_google_calendar') }}" class="btn btn-primary w-100 mb-2">
+                        <i class="fab fa-google"></i> Ajouter un calendrier Google
+                    </a>
+                    <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-secondary w-100">
+                        <i class="fab fa-apple"></i> Ajouter un calendrier iCloud
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Calendrier combiné</h5>
+                </div>
+                <div class="card-body">
+                    <p>Accédez à votre calendrier combiné via ce lien :</p>
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{ url_for('get_combined_calendar', token=current_user.calendar_token, _external=True) }}" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyCalendarUrl(this)">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <strong>Note importante :</strong> Pour utiliser ce calendrier en tant qu'abonnement :
+                        <ul class="mb-0">
+                            <li>L'URL doit être accessible depuis Internet</li>
+                            <li>Dans Outlook : Utilisez "Ajouter un calendrier" > "À partir d'Internet"</li>
+                            <li>Dans Google Calendar : "Ajouter d'autres agendas" > "À partir d'une URL"</li>
+                            <li>Dans Apple Calendar : "Fichier" > "Nouvel abonnement au calendrier"</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Initialiser tous les tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+<script>
+function copyCalendarUrl(button) {
+    var input = button.parentElement.querySelector('input');
+    input.select();
+    document.execCommand('copy');
+    
+    // Change button icon temporarily
+    var icon = button.querySelector('i');
+    icon.className = 'fas fa-check';
+    setTimeout(function() {
+        icon.className = 'far fa-copy';
+    }, 2000);
+}
 
-        function copyUrl() {
-            const urlInput = document.querySelector('.copy-url');
-            urlInput.select();
-            document.execCommand('copy');
-            
-            // Trouver le tooltip du bouton de copie
-            const copyButton = document.querySelector('button[onclick="copyUrl()"]');
-            const tooltip = bootstrap.Tooltip.getInstance(copyButton);
-            
-            // Sauvegarder le titre original
-            const originalTitle = copyButton.getAttribute('data-bs-original-title');
-            
-            // Changer temporairement le texte du tooltip
-            tooltip.setContent({ '.tooltip-inner': 'URL copiée ! | URL copied!' });
-            
-            // Rétablir le titre original après 2 secondes
-            setTimeout(() => {
-                tooltip.setContent({ '.tooltip-inner': originalTitle });
-            }, 2000);
-        }
-
-        document.querySelectorAll('.calendar-toggle').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const calendarId = this.dataset.calendarId;
-                const calendarItem = document.getElementById(`calendar-${calendarId}`);
-                
-                // Désactiver la case à cocher et ajouter l'effet de chargement
-                this.disabled = true;
-                calendarItem.classList.add('syncing');
-                
-                fetch(`/toggle_calendar/${calendarId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Lancer la synchronisation
-                        return fetch('/sync_calendars').then(() => {
-                            // Succès : animation de succès
-                            calendarItem.classList.remove('syncing');
-                            calendarItem.classList.add('success');
-                            setTimeout(() => {
-                                calendarItem.classList.remove('success');
-                            }, 1000);
-                        });
-                    } else {
-                        throw new Error('Erreur lors de la mise à jour du calendrier');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Erreur : animation d'erreur et restauration de l'état
-                    calendarItem.classList.remove('syncing');
-                    calendarItem.classList.add('error');
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle calendar active state
+    document.querySelectorAll('.calendar-toggle').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var calendarId = this.dataset.calendarId;
+            fetch('/toggle_calendar/' + calendarId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.status === 'success') {
                     this.checked = !this.checked;
-                    setTimeout(() => {
-                        calendarItem.classList.remove('error');
-                    }, 500);
-                })
-                .finally(() => {
-                    // Réactiver la case à cocher
-                    this.disabled = false;
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.checked = !this.checked;
             });
         });
-    </script>
-</body>
-</html> 
+    });
+
+    // Update calendar color
+    document.querySelectorAll('.calendar-color').forEach(function(colorInput) {
+        colorInput.addEventListener('change', function() {
+            var calendarId = this.dataset.calendarId;
+            fetch('/update_calendar_color/' + calendarId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    color: this.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error updating color');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

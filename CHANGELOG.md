@@ -1,17 +1,49 @@
 # Changelog
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+Tous les changements notables de ce projet seront documentés dans ce fichier.
 
-Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
+Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Non publié]
+## [1.1.0] - 2025-04-03
+
+### Ajouté
+- Support des noms de calendriers iCloud avec emojis et caractères spéciaux
+- Récupération des couleurs personnalisées des calendriers iCloud
+- Amélioration de la synchronisation des propriétés des calendriers
+
+### Modifié
+- Remplacement de la méthode de récupération des propriétés CalDAV par une approche PROPFIND directe
+- Correction du problème d'affichage des UUIDs à la place des noms de calendriers
+- Amélioration de la gestion des erreurs lors de la récupération des propriétés des calendriers
+
+### Corrigé
+- Correction du problème de décodage des réponses CalDAV
+- Correction de l'affichage des noms de calendriers spéciaux (home, work, etc.)
+- Correction des avertissements de dépréciation liés à datetime.utcnow()
+
+## [1.0.0] - 2025-04-01
+
+### Ajouté
+- Version initiale de l'application
+- Support des calendriers Google via OAuth2
+- Support des calendriers iCloud via CalDAV
+- Interface utilisateur multilingue (FR/EN)
+- Génération de calendriers ICS combinés
+- Système d'activation/désactivation des calendriers
+- Documentation complète
+- Tests unitaires
+- Intégration continue avec GitHub Actions
 
 ### Planifié
 - Système d'authentification utilisateur via Google OAuth2
 - Gestion des utilisateurs avec base de données dédiée
 - URLs uniques et sécurisées pour les calendriers combinés
 - Interface de gestion de profil utilisateur
+- Indicateurs de statut de connexion pour Google et iCloud
+- Boutons de déconnexion individuels pour chaque service
+- Bouton de déconnexion global de l'application
+- Retours visuels améliorés pour les états de connexion
 
 ### Ajouté
 - Interface responsive pour les appareils mobiles

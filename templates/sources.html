@@ -1,0 +1,301 @@
+{% extends "layout.html" %}
+
+{% block title %}Gérer les sources - CalFusion{% endblock %}
+
+{% block additional_styles %}
+.source-card {
+    margin-bottom: 1rem;
+}
+
+.source-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.source-icon {
+    font-size: 2rem;
+}
+
+.source-info {
+    flex-grow: 1;
+}
+
+.source-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.source-status {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.source-calendars {
+    margin-top: 1rem;
+    padding-left: 3rem;
+}
+
+.calendar-count {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.add-source-card {
+    border: 2px dashed #dee2e6;
+    text-align: center;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-source-card:hover {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.add-source-icon {
+    font-size: 2rem;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+
+.source-google { color: #4285F4; }
+.source-icloud { color: #999999; }
+.source-ics { color: #28a745; }
+
+.modal-body .form-group {
+    margin-bottom: 1rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Gérer les sources de calendriers</h1>
+
+    {% for source in sources %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if source.type == 'google' %}
+                        <i class="fab fa-google text-primary me-2"></i>
+                    {% elif source.type == 'icloud' %}
+                        <i class="fab fa-apple text-secondary me-2"></i>
+                    {% else %}
+                        <i class="far fa-calendar text-info me-2"></i>
+                    {% endif %}
+                    <strong>{{ source.name }}</strong>
+                </div>
+                <div class="d-flex align-items-center">
+                    {% if source.is_connected %}
+                        <span class="badge bg-success me-2">
+                            <i class="fas fa-check-circle"></i> Connecté
+                        </span>
+                        <span class="text-muted me-3">
+                            <i class="far fa-clock"></i> Dernière synchronisation : {{ source.last_sync.strftime('%d/%m/%Y %H:%M') if source.last_sync else 'Jamais' }}
+                        </span>
+                        <button class="btn btn-outline-primary me-2" onclick="refreshSource({{ source.id }})">
+                            <i class="fas fa-sync-alt"></i> Rafraîchir
+                        </button>
+                        <button class="btn btn-outline-danger me-2" onclick="disconnectSource({{ source.id }})">
+                            <i class="fas fa-unlink"></i> Déconnecter
+                        </button>
+                    {% else %}
+                        <span class="badge bg-secondary me-2">
+                            <i class="fas fa-times-circle"></i> Déconnecté
+                        </span>
+                        {% if source.type == 'google' %}
+                            <a href="{{ url_for('add_google_calendar') }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-link"></i> Reconnecter
+                            </a>
+                        {% elif source.type == 'icloud' %}
+                            <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-link"></i> Reconnecter
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                    <button class="btn btn-outline-warning" onclick="purgeSource({{ source.id }})">
+                        <i class="fas fa-trash"></i> Purger
+                    </button>
+                </div>
+            </div>
+
+            {% if source.calendars %}
+            <div class="mt-3">
+                <small class="text-muted">{{ source.calendars|length }} calendrier(s)</small>
+                <div class="list-group mt-2">
+                    {% for calendar in source.calendars %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="color-dot" style="background-color: {{ calendar.color }}"></span>
+                            {{ calendar.name }}
+                        </div>
+                        <div>
+                            {% if calendar.active %}
+                            <span class="badge bg-success">Actif</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactif</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body text-center">
+            <h5 class="mb-3">Ajouter une nouvelle source</h5>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('add_google_calendar') }}" class="btn btn-primary">
+                    <i class="fab fa-google"></i> Google Calendar
+                </a>
+                <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-secondary">
+                    <i class="fab fa-apple"></i> iCloud Calendar
+                </a>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addIcsModal">
+                    <i class="fas fa-link"></i> Calendrier ICS/iCal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'ajout d'un calendrier ICS -->
+<div class="modal fade" id="addIcsModal" tabindex="-1" aria-labelledby="addIcsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addIcsModalLabel">Ajouter un calendrier ICS/iCal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addIcsForm">
+                    <div class="mb-3">
+                        <label for="icsName" class="form-label">Nom du calendrier</label>
+                        <input type="text" class="form-control" id="icsName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="icsUrl" class="form-label">URL du calendrier (webcal:// ou https://)</label>
+                        <input type="text" class="form-control" id="icsUrl" name="url" required 
+                               placeholder="https://example.com/calendar.ics">
+                        <div class="form-text">
+                            Formats acceptés : webcal://, http://, https://<br>
+                            Le calendrier doit être accessible publiquement
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="addIcsSource()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+</style>
+
+<script>
+function refreshSource(sourceId) {
+    fetch(`/sources/${sourceId}/refresh`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur lors du rafraîchissement : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors du rafraîchissement');
+    });
+}
+
+function disconnectSource(sourceId) {
+    if (confirm('Êtes-vous sûr de vouloir déconnecter cette source ?')) {
+        fetch(`/sources/${sourceId}/disconnect`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la déconnexion : ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la déconnexion');
+        });
+    }
+}
+
+function purgeSource(sourceId) {
+    if (confirm('Êtes-vous sûr de vouloir purger cette source ? Tous les calendriers associés seront supprimés.')) {
+        fetch(`/sources/${sourceId}/purge`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la purge : ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la purge');
+        });
+    }
+}
+
+function addIcsSource() {
+    const name = document.getElementById('icsName').value;
+    const url = document.getElementById('icsUrl').value;
+    
+    if (!name || !url) {
+        alert('Veuillez remplir tous les champs');
+        return;
+    }
+    
+    fetch('/sources/add_ics', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, url })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur lors de l\'ajout du calendrier : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de l\'ajout du calendrier');
+    });
+}
+</script>
+{% endblock %} 

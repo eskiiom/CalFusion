@@ -1,6 +1,7 @@
 import os
 import sys
 import pytest
+from unittest.mock import patch
 from app import app as flask_app, db
 
 @pytest.fixture(autouse=True)
@@ -47,16 +48,32 @@ def test_add_icloud_page(client):
         assert response.status_code == 200
         assert b'identifiant' in response.data.lower() or b'apple id' in response.data.lower()
 
-def test_oauth2callback_without_code(client):
+@patch('google_auth_oauthlib.flow.Flow.from_client_config')
+def test_oauth2callback_without_code(mock_flow, client):
     with flask_app.app_context():
-        with client.session_transaction() as session:
-            session['state'] = 'test_state'  # Simuler un état de session
+        # Simuler une requête sans code
         response = client.get('/oauth2callback')
-        assert response.status_code == 302  # Should redirect
+        assert response.status_code == 302
+        assert '/' in response.location  # Redirection vers la page d'accueil
 
-def test_oauth2callback_with_invalid_state(client):
+@patch('google_auth_oauthlib.flow.Flow.from_client_config')
+def test_oauth2callback_with_invalid_state(mock_flow, client):
     with flask_app.app_context():
         with client.session_transaction() as session:
             session['state'] = 'correct_state'
-        response = client.get('/oauth2callback?state=wrong_state')
-        assert response.status_code == 302  # Should redirect to index with error 
+        
+        # Simuler une requête avec un état invalide
+        response = client.get('/oauth2callback?state=wrong_state&code=test_code')
+        assert response.status_code == 302
+        assert '/' in response.location  # Redirection vers la page d'accueil
+
+@patch('google_auth_oauthlib.flow.Flow.from_client_config')
+def test_oauth2callback_with_valid_state(mock_flow, client):
+    with flask_app.app_context():
+        test_state = 'test_state'
+        with client.session_transaction() as session:
+            session['state'] = test_state
+        
+        # Simuler une requête valide
+        response = client.get(f'/oauth2callback?state={test_state}&code=test_code')
+        assert response.status_code == 302  # Redirection après authentification réussie 
