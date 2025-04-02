@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "calfusion"
+version = "0.1.0"
+description = "Une application Flask pour fusionner des calendriers Google et iCloud"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Votre nom", email = "votre.email@example.com" }
+]
+dependencies = [
+    "flask",
+    "google-auth-oauthlib",
+    "google-auth-httplib2",
+    "google-api-python-client",
+    "python-dotenv",
+    "icalendar",
+    "requests",
+    "flask-sqlalchemy",
+    "caldav",
+    "vobject",
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v" 
