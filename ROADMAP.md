@@ -4,7 +4,7 @@
 - [x] Ajouter des icônes pour différencier les calendriers Google et iCloud
 - [ ] Ajouter un indicateur de chargement pendant la synchronisation
 - [ ] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
-- [ ] Ajouter des tooltips pour expliquer les fonctionnalités
+- [x] Ajouter des tooltips pour expliquer les fonctionnalités
 - [ ] Améliorer la réactivité mobile
 
 ## 2. Fonctionnalités de Personnalisation

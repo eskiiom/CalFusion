@@ -8,6 +8,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Non publié]
 
 ### Ajouté
+- Tooltips bilingues (FR/EN) sur tous les éléments interactifs
+- Retour visuel amélioré pour la copie d'URL
 - Icônes distinctives pour les calendriers Google (logo Google) et iCloud (logo Apple)
 - Styles personnalisés pour les boutons d'ajout de calendrier
 - Intégration de Font Awesome 6.5.1 pour les icônes
@@ -17,8 +19,10 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Amélioration de l'interface utilisateur avec des couleurs spécifiques pour chaque service
 - Mise à jour du style des boutons d'action pour une meilleure cohérence visuelle
 - Optimisation du code CSS pour éviter les erreurs de linter
+- Remplacement de l'alerte de copie par un tooltip dynamique
 
 ### Technique
 - Utilisation des CSS Custom Properties pour la gestion des couleurs
 - Amélioration de la maintenabilité du code CSS
-- Correction des erreurs de linter dans les templates 
+- Correction des erreurs de linter dans les templates
+- Initialisation automatique des tooltips Bootstrap 

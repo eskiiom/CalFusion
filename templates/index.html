@@ -94,6 +94,10 @@
         .border-color {
             border-left-color: var(--calendar-color);
         }
+        .tooltip-inner {
+            max-width: 300px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -110,8 +114,14 @@
                             <div class="calendar-item border-color" style="--calendar-color: {{ calendar.color }}">
                                 <input type="checkbox" class="calendar-toggle" 
                                        data-calendar-id="{{ calendar.id }}"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="left"
+                                       title="Activer/Désactiver ce calendrier dans la fusion | Enable/Disable this calendar in the fusion"
                                        {% if calendar.active %}checked{% endif %}>
-                                <i class="calendar-icon {% if calendar.type == 'google' %}fa-brands fa-google google-icon{% else %}fa-brands fa-apple icloud-icon{% endif %}"></i>
+                                <i class="calendar-icon {% if calendar.type == 'google' %}fa-brands fa-google google-icon{% else %}fa-brands fa-apple icloud-icon{% endif %}"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="{% if calendar.type == 'google' %}Calendrier Google synchronisé via l'API Google Calendar | Google Calendar synced via Google Calendar API{% else %}Calendrier iCloud synchronisé via CalDAV | iCloud Calendar synced via CalDAV{% endif %}"></i>
                                 <div>
                                     <strong>{{ calendar.name }}</strong><br>
                                     <small>Type: {{ calendar.type }}</small>
@@ -128,10 +138,16 @@
                     <div class="card-body">
                         <h5 class="card-title">Ajouter un calendrier</h5>
                         <div class="d-grid gap-2">
-                            <a href="{{ url_for('add_google_calendar') }}" class="btn btn-google">
+                            <a href="{{ url_for('add_google_calendar') }}" class="btn btn-google"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="left"
+                               title="Connectez-vous avec votre compte Google pour importer vos calendriers | Sign in with your Google account to import your calendars">
                                 <i class="fa-brands fa-google me-2"></i>Ajouter un calendrier Google
                             </a>
-                            <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-icloud">
+                            <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-icloud"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="left"
+                               title="Utilisez votre identifiant Apple et un mot de passe d'application pour importer vos calendriers | Use your Apple ID and an app-specific password to import your calendars">
                                 <i class="fa-brands fa-apple me-2"></i>Ajouter un calendrier iCloud
                             </a>
                         </div>
@@ -145,9 +161,17 @@
                         <div class="input-group mb-3">
                             <input type="text" class="form-control copy-url" id="calendarUrl" 
                                    value="{{ url_for('get_combined_calendar', _external=True) }}" 
-                                   readonly>
+                                   readonly
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="URL de votre calendrier combiné - Utilisez cette URL pour vous abonner dans votre application de calendrier | Your combined calendar URL - Use this URL to subscribe in your calendar application">
                             <button class="btn btn-outline-secondary" type="button" 
-                                    onclick="copyUrl()">Copier</button>
+                                    onclick="copyUrl()"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="right"
+                                    title="Copier l'URL dans le presse-papiers | Copy URL to clipboard">
+                                Copier
+                            </button>
                         </div>
                         <div class="alert alert-info">
                             <small>
@@ -169,11 +193,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Initialiser tous les tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
         function copyUrl() {
             const urlInput = document.querySelector('.copy-url');
             urlInput.select();
             document.execCommand('copy');
-            alert('URL copiée !');
+            
+            // Trouver le tooltip du bouton de copie
+            const copyButton = document.querySelector('button[onclick="copyUrl()"]');
+            const tooltip = bootstrap.Tooltip.getInstance(copyButton);
+            
+            // Sauvegarder le titre original
+            const originalTitle = copyButton.getAttribute('data-bs-original-title');
+            
+            // Changer temporairement le texte du tooltip
+            tooltip.setContent({ '.tooltip-inner': 'URL copiée ! | URL copied!' });
+            
+            // Rétablir le titre original après 2 secondes
+            setTimeout(() => {
+                tooltip.setContent({ '.tooltip-inner': originalTitle });
+            }, 2000);
         }
 
         document.querySelectorAll('.calendar-toggle').forEach(checkbox => {
