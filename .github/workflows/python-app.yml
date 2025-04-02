@@ -38,6 +38,7 @@ jobs:
     
     - name: Initialize database
       env:
+        PYTHONPATH: ${{ github.workspace }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         REDIRECT_URI: http://localhost:5000/oauth2callback
@@ -53,6 +54,7 @@ jobs:
     
     - name: Test with pytest
       env:
+        PYTHONPATH: ${{ github.workspace }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         REDIRECT_URI: http://localhost:5000/oauth2callback
