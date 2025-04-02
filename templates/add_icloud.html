@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ajouter un calendrier iCloud - CalFusion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #1a73e8;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #1557b0;
+        }
+        .info {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ajouter un calendrier iCloud</h1>
+    
+    <div class="info">
+        <p>Pour ajouter vos calendriers iCloud, vous devez fournir :</p>
+        <ul>
+            <li>Votre identifiant Apple (adresse email)</li>
+            <li>Votre mot de passe spécifique pour les applications</li>
+        </ul>
+        <p><strong>Note importante :</strong> Pour des raisons de sécurité, Apple recommande d'utiliser un mot de passe spécifique aux applications plutôt que votre mot de passe principal. <a href="https://support.apple.com/fr-fr/HT204397" target="_blank">Voir comment créer un mot de passe d'application</a></p>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Identifiant Apple :</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Mot de passe d'application :</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="button">Ajouter les calendriers</button>
+            <a href="{{ url_for('index') }}" class="button" style="background-color: #666;">Annuler</a>
+        </div>
+    </form>
+</body>
+</html> 
