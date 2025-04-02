@@ -85,58 +85,83 @@ def add_google_calendar():
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    state = session['state']
-    redirect_uri = os.getenv("REDIRECT_URI")
-    if not redirect_uri:
-        return "Error: REDIRECT_URI not configured", 500
+    try:
+        # Vérifier si l'état est présent dans la session
+        if 'state' not in session:
+            flash('Session invalide. Veuillez réessayer.', 'error')
+            return redirect(url_for('index'))
+
+        # Récupérer l'état de la session
+        state = session['state']
         
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "redirect_uris": [redirect_uri]
-            }
-        },
-        scopes=SCOPES,
-        state=state,
-        redirect_uri=redirect_uri
-    )
-    
-    authorization_response = request.url
-    flow.fetch_token(authorization_response=authorization_response)
-    credentials = flow.credentials
-    
-    # Stockage des informations d'identification communes
-    creds_info = {
-        'token': credentials.token,
-        'refresh_token': credentials.refresh_token,
-        'token_uri': credentials.token_uri,
-        'client_id': os.getenv("GOOGLE_CLIENT_ID"),
-        'client_secret': os.getenv("GOOGLE_CLIENT_SECRET"),
-        'scopes': credentials.scopes
-    }
-    
-    service = build('calendar', 'v3', credentials=credentials)
-    calendar_list = service.calendarList().list().execute()
-    
-    for calendar in calendar_list.get('items', []):
-        # Créer une copie des credentials pour chaque calendrier
-        calendar_creds = creds_info.copy()
-        
-        new_calendar = CalendarModel(
-            name=calendar['summary'],
-            type='google',
-            credentials=json.dumps(calendar_creds),  # Utiliser la copie des credentials
-            calendar_id=calendar['id'],
-            color=calendar.get('backgroundColor', '#4285f4')
+        # Vérifier si le state correspond
+        if request.args.get('state', '') != state:
+            flash('État de session invalide. Veuillez réessayer.', 'error')
+            return redirect(url_for('index'))
+            
+        # Vérifier si le code est présent
+        if 'code' not in request.args:
+            flash('Aucun code d\'autorisation reçu.', 'error')
+            return redirect(url_for('index'))
+
+        redirect_uri = os.getenv("REDIRECT_URI")
+        if not redirect_uri:
+            flash('URI de redirection non configurée.', 'error')
+            return redirect(url_for('index'))
+            
+        flow = Flow.from_client_config(
+            {
+                "web": {
+                    "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+                    "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "redirect_uris": [redirect_uri]
+                }
+            },
+            scopes=SCOPES,
+            state=state,
+            redirect_uri=redirect_uri
         )
-        db.session.add(new_calendar)
-    
-    db.session.commit()
-    return redirect(url_for('index'))
+        
+        authorization_response = request.url
+        flow.fetch_token(authorization_response=authorization_response)
+        credentials = flow.credentials
+        
+        # Stockage des informations d'identification communes
+        creds_info = {
+            'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': os.getenv("GOOGLE_CLIENT_ID"),
+            'client_secret': os.getenv("GOOGLE_CLIENT_SECRET"),
+            'scopes': credentials.scopes
+        }
+        
+        service = build('calendar', 'v3', credentials=credentials)
+        calendar_list = service.calendarList().list().execute()
+        
+        for calendar in calendar_list.get('items', []):
+            # Créer une copie des credentials pour chaque calendrier
+            calendar_creds = creds_info.copy()
+            
+            new_calendar = CalendarModel(
+                name=calendar['summary'],
+                type='google',
+                credentials=json.dumps(calendar_creds),
+                calendar_id=calendar['id'],
+                color=calendar.get('backgroundColor', '#4285f4')
+            )
+            db.session.add(new_calendar)
+        
+        db.session.commit()
+        flash('Calendriers Google ajoutés avec succès!', 'success')
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        app.logger.error(f"Erreur dans oauth2callback: {str(e)}")
+        flash(f'Erreur lors de l\'authentification: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 def get_google_calendar_events(calendar, start_date=None, end_date=None):
     """Récupère les événements d'un calendrier Google."""
