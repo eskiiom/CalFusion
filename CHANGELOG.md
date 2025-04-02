@@ -30,6 +30,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Sélecteur de couleur pour personnaliser la couleur de chaque calendrier
 - Retour visuel lors du changement de couleur (animation de succès/erreur)
 - Tooltips bilingues pour le sélecteur de couleur
+- Authentification complète avec Google OAuth2
+- Gestion des sessions utilisateur avec Flask-Login
+- URLs uniques par utilisateur pour les calendriers combinés
+- Page de connexion avec interface moderne
+- Nettoyage automatique des sessions et messages flash
+- Base de données SQLite pour stocker les utilisateurs et leurs calendriers
+- Modèle User pour gérer les comptes utilisateurs
+- Token unique par utilisateur pour l'accès aux calendriers
 
 ### Modifié
 - Optimisation de la mise en page pour les appareils mobiles
@@ -44,6 +52,17 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Amélioration de l'interface utilisateur avec des animations fluides
 - Optimisation du code JavaScript pour une meilleure gestion des états
 - Mise à jour de la ROADMAP pour inclure l'authentification utilisateur
+- Sécurisation de toutes les routes avec @login_required
+- Amélioration de la gestion des messages flash
+- Stockage des calendriers par utilisateur dans la base de données
+- Génération des calendriers combinés à la volée
+- Interface utilisateur adaptative pour mobile
+- Amélioration des retours visuels lors des actions
+- Optimisation du code CSS avec des variables
+
+### Supprimé
+- Stockage local des fichiers ICS (maintenant générés à la volée)
+- Messages flash persistants non désirés
 
 ### Technique
 - Implémentation de Media Queries pour la réactivité

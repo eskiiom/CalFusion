@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - CalFusion{% endblock %}
+
+{% block additional_styles %}
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.btn-google {
+    background-color: #4285F4;
+    color: white;
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.btn-google:hover {
+    background-color: #357ABD;
+    color: white;
+}
+
+@media (max-width: 576px) {
+    .btn-google {
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Connexion</h2>
+            <div class="alert alert-info" role="alert">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Connectez-vous avec votre compte Google pour commencer à fusionner vos calendriers.
+            </div>
+            <div class="d-grid">
+                <a href="{{ url_for('add_google_calendar') }}" class="btn btn-google">
+                    <i class="fa-brands fa-google me-2"></i>
+                    Se connecter avec Google
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

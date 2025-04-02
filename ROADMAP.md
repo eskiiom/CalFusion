@@ -15,12 +15,12 @@
 - [ ] Ajouter des filtres par date
 
 ## 3. Authentification et Gestion des Utilisateurs
-- [ ] Implémenter l'authentification Google OAuth2
-- [ ] Ajouter la gestion des utilisateurs dans la base de données
-- [ ] Créer des URLs uniques par utilisateur pour les calendriers
-- [ ] Implémenter la gestion des sessions utilisateur
+- [x] Ajouter l'authentification avec Google OAuth2
+- [x] Gérer les sessions utilisateur
+- [x] Sécuriser les routes avec @login_required
+- [x] Générer des URLs uniques pour chaque calendrier combiné
+- [x] Nettoyer les sessions et messages flash lors de la déconnexion
 - [ ] Ajouter une page de profil utilisateur
-- [ ] Sécuriser les routes avec authentification
 - [ ] Ajouter l'authentification GitHub (optionnel)
 
 ## 4. Améliorations Techniques
