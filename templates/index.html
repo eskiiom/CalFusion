@@ -143,6 +143,10 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Vos calendriers</h5>
+                        <div class="alert alert-info mb-3">
+                            <i class="fa-solid fa-circle-info me-2"></i>
+                            L'activation ou la désactivation d'un calendrier peut prendre de quelques secondes à quelques minutes selon la taille du calendrier.
+                        </div>
                         <div class="calendar-list">
                             {% for calendar in calendars %}
                             <div class="calendar-item border-color" style="--calendar-color: {{ calendar.color }}" id="calendar-{{ calendar.id }}">
@@ -150,7 +154,7 @@
                                        data-calendar-id="{{ calendar.id }}"
                                        data-bs-toggle="tooltip"
                                        data-bs-placement="left"
-                                       title="Activer/Désactiver ce calendrier dans la fusion | Enable/Disable this calendar in the fusion"
+                                       title="Activer/Désactiver ce calendrier dans la fusion (peut prendre quelques secondes à quelques minutes) | Enable/Disable this calendar in the fusion (may take a few seconds to a few minutes)"
                                        {% if calendar.active %}checked{% endif %}>
                                 <i class="calendar-icon {% if calendar.type == 'google' %}fa-brands fa-google google-icon{% else %}fa-brands fa-apple icloud-icon{% endif %}"
                                    data-bs-toggle="tooltip"

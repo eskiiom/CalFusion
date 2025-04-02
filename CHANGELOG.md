@@ -8,6 +8,8 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Non publié]
 
 ### Ajouté
+- Message d'information sur le temps de synchronisation des calendriers
+- Mise à jour des tooltips avec des informations sur le temps d'attente
 - Indicateur de chargement pendant la synchronisation des calendriers
 - Animations de retour visuel pour les actions de calendrier
 - Tooltips bilingues (FR/EN) sur tous les éléments interactifs
