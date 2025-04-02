@@ -26,6 +26,7 @@
             border-left: 4px solid;
             margin: 5px 0;
             background-color: #f8f9fa;
+            transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
         }
         .calendar-toggle {
             margin-right: 15px;
@@ -98,6 +99,39 @@
             max-width: 300px;
             text-align: left;
         }
+        .calendar-item.syncing {
+            opacity: 0.7;
+            background-color: #e9ecef;
+        }
+
+        .calendar-item.success {
+            animation: successPulse 1s ease-in-out;
+        }
+
+        .calendar-item.error {
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0% { background-color: #f8f9fa; }
+            50% { background-color: #d4edda; }
+            100% { background-color: #f8f9fa; }
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .spinner-border-sm {
+            margin-left: 10px;
+            display: none;
+        }
+
+        .syncing .spinner-border-sm {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -111,7 +145,7 @@
                         <h5 class="card-title">Vos calendriers</h5>
                         <div class="calendar-list">
                             {% for calendar in calendars %}
-                            <div class="calendar-item border-color" style="--calendar-color: {{ calendar.color }}">
+                            <div class="calendar-item border-color" style="--calendar-color: {{ calendar.color }}" id="calendar-{{ calendar.id }}">
                                 <input type="checkbox" class="calendar-toggle" 
                                        data-calendar-id="{{ calendar.id }}"
                                        data-bs-toggle="tooltip"
@@ -122,9 +156,12 @@
                                    data-bs-toggle="tooltip"
                                    data-bs-placement="top"
                                    title="{% if calendar.type == 'google' %}Calendrier Google synchronisé via l'API Google Calendar | Google Calendar synced via Google Calendar API{% else %}Calendrier iCloud synchronisé via CalDAV | iCloud Calendar synced via CalDAV{% endif %}"></i>
-                                <div>
+                                <div class="flex-grow-1">
                                     <strong>{{ calendar.name }}</strong><br>
                                     <small>Type: {{ calendar.type }}</small>
+                                </div>
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Synchronisation...</span>
                                 </div>
                             </div>
                             {% endfor %}
@@ -223,6 +260,12 @@
         document.querySelectorAll('.calendar-toggle').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const calendarId = this.dataset.calendarId;
+                const calendarItem = document.getElementById(`calendar-${calendarId}`);
+                
+                // Désactiver la case à cocher et ajouter l'effet de chargement
+                this.disabled = true;
+                calendarItem.classList.add('syncing');
+                
                 fetch(`/toggle_calendar/${calendarId}`, {
                     method: 'POST',
                     headers: {
@@ -232,16 +275,32 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        fetch('/sync_calendars');
+                        // Lancer la synchronisation
+                        return fetch('/sync_calendars').then(() => {
+                            // Succès : animation de succès
+                            calendarItem.classList.remove('syncing');
+                            calendarItem.classList.add('success');
+                            setTimeout(() => {
+                                calendarItem.classList.remove('success');
+                            }, 1000);
+                        });
                     } else {
-                        alert('Erreur lors de la mise à jour du calendrier');
-                        this.checked = !this.checked;
+                        throw new Error('Erreur lors de la mise à jour du calendrier');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Erreur lors de la mise à jour du calendrier');
+                    // Erreur : animation d'erreur et restauration de l'état
+                    calendarItem.classList.remove('syncing');
+                    calendarItem.classList.add('error');
                     this.checked = !this.checked;
+                    setTimeout(() => {
+                        calendarItem.classList.remove('error');
+                    }, 500);
+                })
+                .finally(() => {
+                    // Réactiver la case à cocher
+                    this.disabled = false;
                 });
             });
         });

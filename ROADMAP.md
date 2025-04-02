@@ -2,8 +2,8 @@
 
 ## 1. Améliorations de l'Interface Utilisateur
 - [x] Ajouter des icônes pour différencier les calendriers Google et iCloud
-- [ ] Ajouter un indicateur de chargement pendant la synchronisation
-- [ ] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
+- [x] Ajouter un indicateur de chargement pendant la synchronisation
+- [x] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
 - [x] Ajouter des tooltips pour expliquer les fonctionnalités
 - [ ] Améliorer la réactivité mobile
 
