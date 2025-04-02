@@ -36,6 +36,21 @@ jobs:
         mkdir -p instance
         touch instance/calendars.db
     
+    - name: Initialize database
+      env:
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        REDIRECT_URI: http://localhost:5000/oauth2callback
+        SECRET_KEY: test_secret_key
+        FLASK_ENV: testing
+        ICLOUD_CALDAV_URL: https://caldav.icloud.com
+      run: |
+        python - <<EOF
+        from app import app, db
+        with app.app_context():
+            db.create_all()
+        EOF
+    
     - name: Test with pytest
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -45,7 +60,6 @@ jobs:
         FLASK_ENV: testing
         ICLOUD_CALDAV_URL: https://caldav.icloud.com
       run: |
-        python -c "from app import db; db.create_all()"
         pytest
 
   security:

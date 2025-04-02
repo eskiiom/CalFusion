@@ -4,9 +4,10 @@ from app import app as flask_app, db
 
 @pytest.fixture(autouse=True)
 def app():
+    """Create application for the tests."""
     flask_app.config.update({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///test.db",
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///instance/test.db",
         "SECRET_KEY": "test_secret_key",
         "GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", "test_id"),
         "GOOGLE_CLIENT_SECRET": os.getenv("GOOGLE_CLIENT_SECRET", "test_secret"),
@@ -26,16 +27,24 @@ def app():
 def client(app):
     return app.test_client()
 
+@pytest.fixture
+def runner(app):
+    return app.test_cli_runner()
+
 def test_index_page(client):
-    response = client.get('/')
-    assert response.status_code == 200
-    assert b'Calendriers' in response.data
+    with flask_app.app_context():
+        response = client.get('/')
+        assert response.status_code == 200
+        assert b'Calendriers' in response.data
 
 def test_add_icloud_page(client):
-    response = client.get('/add_icloud_calendar')
-    assert response.status_code == 200
-    assert b'identifiant' in response.data.lower() or b'apple id' in response.data.lower()
+    with flask_app.app_context():
+        response = client.get('/add_icloud_calendar')
+        assert response.status_code == 200
+        assert b'identifiant' in response.data.lower() or b'apple id' in response.data.lower()
 
 def test_oauth2callback_without_code(client):
+    with flask_app.app_context():
+        response = client.get('/oauth2callback')
     response = client.get('/oauth2callback')
     assert response.status_code == 302  # Should redirect 
