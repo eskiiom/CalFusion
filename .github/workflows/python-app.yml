@@ -9,17 +9,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, "3.10"]
 
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.10"
     
     - name: Install dependencies
       run: |
@@ -38,14 +35,21 @@ jobs:
       run: |
         safety check
     
+    - name: Create instance directory
+      run: |
+        mkdir -p instance
+        touch instance/calendars.db
+    
     - name: Test with pytest
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         REDIRECT_URI: http://localhost:5000/oauth2callback
         SECRET_KEY: test_secret_key
+        FLASK_ENV: testing
         ICLOUD_CALDAV_URL: https://caldav.icloud.com
       run: |
+        python -c "from app import db; db.create_all()"
         pytest
 
   build:
