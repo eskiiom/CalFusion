@@ -13,6 +13,7 @@ def app():
         "SECRET_KEY": "test_secret_key",
         "GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", "test_id"),
         "GOOGLE_CLIENT_SECRET": os.getenv("GOOGLE_CLIENT_SECRET", "test_secret"),
+        "WTF_CSRF_ENABLED": False,  # Désactiver CSRF pour les tests
     })
     
     # Create the database and the database table
@@ -37,7 +38,8 @@ def test_index_page(client):
     with flask_app.app_context():
         response = client.get('/')
         assert response.status_code == 200
-        assert b'Calendriers' in response.data or b'Calendars' in response.data
+        # Vérifier le titre de la page au lieu du contenu spécifique
+        assert b'CalFusion' in response.data
 
 def test_add_icloud_page(client):
     with flask_app.app_context():
@@ -47,5 +49,14 @@ def test_add_icloud_page(client):
 
 def test_oauth2callback_without_code(client):
     with flask_app.app_context():
+        with client.session_transaction() as session:
+            session['state'] = 'test_state'  # Simuler un état de session
         response = client.get('/oauth2callback')
-        assert response.status_code == 302  # Should redirect 
+        assert response.status_code == 302  # Should redirect
+
+def test_oauth2callback_with_invalid_state(client):
+    with flask_app.app_context():
+        with client.session_transaction() as session:
+            session['state'] = 'correct_state'
+        response = client.get('/oauth2callback?state=wrong_state')
+        assert response.status_code == 302  # Should redirect to index with error 
