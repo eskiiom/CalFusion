@@ -1,7 +1,7 @@
 # Roadmap Calfusion
 
 ## 1. Améliorations de l'Interface Utilisateur
-- [ ] Ajouter des icônes pour différencier les calendriers Google et iCloud
+- [x] Ajouter des icônes pour différencier les calendriers Google et iCloud
 - [ ] Ajouter un indicateur de chargement pendant la synchronisation
 - [ ] Améliorer le retour visuel lors de l'activation/désactivation des calendriers
 - [ ] Ajouter des tooltips pour expliquer les fonctionnalités
