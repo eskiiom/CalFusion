@@ -12,6 +12,77 @@ Calfusion est une application web qui permet de fusionner des calendriers Google
 - Support multilingue (FR/EN)
 - Intégration continue avec GitHub Actions
 
+## Fonctionnement
+
+### URL du Calendrier Combiné
+Lors de la création d'un compte, un token unique et permanent est généré pour chaque utilisateur. Ce token est utilisé pour créer l'URL du calendrier combiné (ex: http://votre-domaine/calendar/[token]/combined.ics). Cette URL reste stable tant que le compte existe et peut être utilisée de manière permanente dans vos applications de calendrier.
+
+### Gestion des Événements
+- Les événements sont récupérés en temps réel lors de l'accès au calendrier combiné
+- En cas d'erreur de connexion à une source, les événements des autres sources restent disponibles
+- Les événements sont automatiquement convertis dans le fuseau horaire local de l'utilisateur
+- Les modifications d'événements sont reflétées immédiatement dans le calendrier combiné
+
+### Personnalisation
+- Chaque calendrier peut être personnalisé avec une couleur spécifique
+- L'ordre d'affichage des calendriers peut être modifié via l'interface
+- Les descriptions des calendriers sont synchronisées avec les sources
+- Les modifications de couleur et d'ordre sont sauvegardées localement
+
+### Limitations et Quotas
+- Google Calendar API : 1 million de requêtes par jour
+- Taille maximale du calendrier combiné : 50 Mo
+- Limite de requêtes CalDAV iCloud : 100 requêtes par minute
+- Conservation des événements : 1 an dans le passé, 3 ans dans le futur
+
+### Maintenance
+#### Sauvegarde
+La base de données SQLite est stockée dans `instance/calfusion.db`. Pour sauvegarder :
+```bash
+cp instance/calfusion.db instance/calfusion.db.backup
+```
+
+#### Mise à jour
+1. Arrêter l'application
+2. Sauvegarder la base de données
+3. Pull les changements : `git pull`
+4. Mettre à jour les dépendances : `pip install -r requirements.txt`
+5. Appliquer les migrations : `flask db upgrade`
+6. Redémarrer l'application
+
+#### Logs
+Les logs sont stockés dans :
+- Développement : console stdout
+- Production : `/var/log/calfusion/app.log`
+
+Niveau de log configurable via `FLASK_ENV` :
+- development : DEBUG
+- production : INFO
+
+### Sécurité
+#### Tokens Google
+- Validité du token d'accès : 1 heure
+- Renouvellement automatique via refresh token
+- Le refresh token est permanent sauf révocation par l'utilisateur
+
+#### iCloud
+- Utiliser un mot de passe d'application dédié
+- Changer le mot de passe en cas de compromission
+- L'authentification à deux facteurs doit être activée
+
+### Rafraîchissement des Sources
+Le bouton "Rafraîchir" sur chaque source de calendrier permet de :
+- Pour Google Calendar : détecter les nouveaux calendriers ajoutés à votre compte
+- Pour iCloud : détecter les nouveaux calendriers ajoutés à votre compte
+- Pour les calendriers ICS : vérifier que l'URL est toujours valide
+
+Note : Le rafraîchissement met à jour uniquement la liste des calendriers disponibles, pas les événements eux-mêmes. Les événements sont toujours récupérés en temps réel lorsque le calendrier combiné est consulté.
+
+Quand rafraîchir ?
+- Après avoir ajouté de nouveaux calendriers dans votre compte Google ou iCloud
+- Après avoir supprimé des calendriers
+- Après avoir modifié les permissions d'accès à vos calendriers
+
 ## Prérequis
 
 - Python 3.10 ou supérieur
