@@ -6,26 +6,36 @@
   - Infobulles d'aide contextuelle
   - Modales de confirmation
   - Harmonisation des styles
+  - Indicateurs de chargement
+  - Tooltips informatifs
 - Gestion des calendriers
   - Support Google Calendar
   - Support iCloud Calendar
   - Support ICS/iCal
   - Personnalisation des couleurs
+  - Affichage du nombre d'événements à venir
+  - Gestion des fuseaux horaires
 - Gestion du compte
   - Suppression de compte
   - Vue d'ensemble des informations
+- Optimisation des performances
+  - Mise en cache du nombre d'événements
+  - Gestion optimisée des dates et fuseaux horaires
 
 ## Court terme (1-2 mois)
 - [ ] Optimisation des performances
   - [ ] Mise en cache des événements
   - [ ] Chargement asynchrone des calendriers
+  - [ ] Optimisation des requêtes de synchronisation
 - [ ] Amélioration de la documentation
   - [ ] Guide d'utilisation complet
   - [ ] FAQ utilisateur
+  - [ ] Documentation technique
 - [ ] Améliorations de l'interface
   - [ ] Mode sombre
   - [ ] Thèmes personnalisables
   - [ ] Raccourcis clavier
+  - [ ] Statistiques d'utilisation
 
 ## Moyen terme (3-6 mois)
 - [ ] Nouvelles fonctionnalités

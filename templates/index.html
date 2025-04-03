@@ -81,8 +81,9 @@
 }
 
 .calendar-name {
-    margin-left: 10px;
-    flex-grow: 1;
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
 }
 
 .color-picker-wrapper {
@@ -253,6 +254,83 @@
         font-size: 1rem;
     }
 }
+
+.calendar-item {
+    transition: background-color 0.2s;
+}
+.calendar-item:hover {
+    background-color: rgba(0,0,0,.01);
+}
+.calendar-icon {
+    width: 24px;
+    text-align: center;
+}
+.calendar-info {
+    flex-grow: 1;
+}
+.event-count {
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+}
+.event-count .spinner-border {
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+}
+.count-text {
+    color: #6c757d;
+}
+.form-control-color {
+    width: 2.5rem;
+    padding: .25rem;
+    height: 2rem;
+}
+.tooltip ul {
+    padding-left: 1rem;
+}
+
+.event-count {
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+}
+
+.event-count .spinner-border {
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+}
+
+.count-text {
+    color: #6c757d;
+}
+
+@media (max-width: 576px) {
+    .calendar-info {
+        width: 100%;
+    }
+    .calendar-name {
+        font-size: 0.95rem;
+    }
+    .event-count {
+        font-size: 0.85rem;
+    }
+}
+
+.calendar-item .row {
+    width: 100%;
+    margin: 0;
+}
+
+.calendar-item .col {
+    padding-right: 0;
+}
+
+.calendar-item .col-auto:last-child {
+    margin-left: auto;
+    padding-right: 15px;
+}
 {% endblock %}
 
 {% block content %}
@@ -262,43 +340,53 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Vos calendriers</h5>
-                    <button class="btn btn-outline-info btn-sm" type="button" 
-                            data-bs-toggle="tooltip" 
-                            data-bs-html="true"
-                            data-bs-placement="left"
-                            title="L'activation ou la désactivation d'un calendrier peut prendre quelques secondes à quelques minutes selon la taille du calendrier.">
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<ul class='text-start mb-0'><li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li><li>Personnalisez les couleurs avec le sélecteur de couleur</li><li>Le nombre d'événements indiqué correspond aux 30 prochains jours</li></ul>">
                         <i class="fas fa-info-circle"></i>
                     </button>
                 </div>
-                <div class="card-body">
-                    <div class="list-group">
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
                         {% for calendar in calendars %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center flex-grow-1">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input calendar-toggle" 
-                                           id="calendar-{{ calendar.id }}" 
-                                           data-calendar-id="{{ calendar.id }}"
-                                           {% if calendar.active %}checked{% endif %}>
-                                </div>
-                                <div class="calendar-info">
-                                    <div class="calendar-icon">
-                                        {% if calendar.calendar_source.type == 'google' %}
-                                            <i class="fab fa-google"></i>
-                                        {% elif calendar.calendar_source.type == 'icloud' %}
-                                            <i class="fab fa-apple"></i>
-                                        {% else %}
-                                            <i class="far fa-calendar"></i>
-                                        {% endif %}
+                        <div class="list-group-item calendar-item" data-calendar-id="{{ calendar.id }}">
+                            <div class="row align-items-center w-100">
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input calendar-toggle" 
+                                               id="calendar-{{ calendar.id }}" 
+                                               data-calendar-id="{{ calendar.id }}"
+                                               {% if calendar.active %}checked{% endif %}>
                                     </div>
-                                    <span class="calendar-name">{{ calendar.name }}</span>
                                 </div>
-                            </div>
-                            <div class="color-picker-wrapper">
-                                <input type="color" class="form-control form-control-color calendar-color" 
-                                       value="{{ calendar.display_color }}" 
-                                       data-calendar-id="{{ calendar.id }}"
-                                       title="Choisir la couleur">
+                                <div class="col">
+                                    <div class="d-flex align-items-center">
+                                        <div class="calendar-icon me-2">
+                                            {% if calendar.calendar_source.type == 'google' %}
+                                                <i class="fab fa-google"></i>
+                                            {% elif calendar.calendar_source.type == 'icloud' %}
+                                                <i class="fab fa-apple"></i>
+                                            {% else %}
+                                                <i class="far fa-calendar"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="calendar-info">
+                                            <div class="d-flex flex-column">
+                                                <span class="calendar-name">{{ calendar.name }}</span>
+                                                <div class="event-count small text-muted mt-1">
+                                                    <div class="spinner-border spinner-border-sm text-muted" role="status">
+                                                        <span class="visually-hidden">Chargement...</span>
+                                                    </div>
+                                                    <span class="count-text"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto ms-auto">
+                                    <input type="color" class="form-control form-control-color calendar-color" 
+                                           value="{{ calendar.display_color }}" 
+                                           data-calendar-id="{{ calendar.id }}"
+                                           title="Choisir la couleur">
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -351,26 +439,44 @@
                 </div>
             </div>
 
-            <div class="card mt-3">
+            <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Paramètres du compte</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-column">
-                        <div class="mb-3">
-                            <strong>Email :</strong> {{ current_user.email }}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Nom :</strong> {{ current_user.name }}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Date d'inscription :</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}
-                        </div>
-                        <hr>
-                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    <div class="mb-3">
+                        <strong>Email :</strong> {{ current_user.email }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Nom :</strong> {{ current_user.name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Date d'inscription :</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}
+                    </div>
+                    <div class="mb-4">
+                        <form action="{{ url_for('update_timezone') }}" method="POST" class="mb-3">
+                            <div class="form-group">
+                                <label for="timezone" class="form-label">
+                                    Fuseau horaire
+                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-html="true"
+                                       title="Entrez votre fuseau horaire au format 'Region/Ville' (ex: Europe/Paris).<br>Pour voir la liste complète des fuseaux horaires, consultez <a href='https://en.wikipedia.org/wiki/List_of_tz_database_time_zones' target='_blank'>cette page</a>."></i>
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="timezone" name="timezone"
+                                           value="{{ current_user.timezone }}" list="timezone-list"
+                                           placeholder="Recherchez votre fuseau horaire...">
+                                    <button class="btn btn-primary" type="submit">Mettre à jour</button>
+                                </div>
+                                <datalist id="timezone-list"></datalist>
+                                <div class="form-text">Votre fuseau horaire actuel : {{ current_user.timezone }}</div>
+                            </div>
+                        </form>
+                    </div>
+                    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">
+                        <button type="submit" class="btn btn-danger">
                             <i class="fas fa-user-times"></i> Supprimer mon compte
                         </button>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -496,6 +602,63 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Initialiser les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Fonction pour mettre à jour le nombre d'événements
+    function updateEventCounts() {
+        // Afficher les spinners et masquer les compteurs
+        document.querySelectorAll('.event-count .count-text').forEach(el => {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('.event-count .spinner-border').forEach(el => {
+            el.style.display = 'inline-block';
+        });
+
+        fetch('/calendar/events/count')
+            .then(response => response.json())
+            .then(data => {
+                Object.entries(data).forEach(([calendarId, info]) => {
+                    const eventCountEl = document.querySelector(`.calendar-item[data-calendar-id="${calendarId}"] .event-count`);
+                    if (eventCountEl) {
+                        const countText = eventCountEl.querySelector('.count-text');
+                        const spinner = eventCountEl.querySelector('.spinner-border');
+                        const eventCount = info.event_count;
+                        const eventText = eventCount === 1 ? 'événement' : 'événements';
+                        
+                        // Masquer le spinner et afficher le compteur
+                        spinner.style.display = 'none';
+                        countText.style.display = 'inline';
+                        countText.textContent = `${eventCount} ${eventText} à venir`;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération des événements:', error);
+                // En cas d'erreur, masquer tous les spinners
+                document.querySelectorAll('.event-count .spinner-border').forEach(el => {
+                    el.style.display = 'none';
+                });
+            });
+    }
+
+    // Mettre à jour les compteurs au chargement
+    updateEventCounts();
+
+    // Mettre à jour les compteurs toutes les 5 minutes
+    setInterval(updateEventCounts, 300000);
+
+    // Mettre à jour les compteurs lors du changement d'état d'un calendrier
+    document.querySelectorAll('.calendar-toggle').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            // Attendre un peu pour laisser le temps à l'état du calendrier d'être mis à jour
+            setTimeout(updateEventCounts, 500);
+        });
+    });
 });
 
 function submitIcsForm() {
@@ -526,5 +689,22 @@ function submitIcsForm() {
         alert('Une erreur est survenue lors de l\'ajout du calendrier.');
     });
 }
+
+document.getElementById('timezone').addEventListener('input', function(e) {
+    const query = e.target.value;
+    if (query.length < 2) return;
+
+    fetch(`/timezones/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(timezones => {
+            const datalist = document.getElementById('timezone-list');
+            datalist.innerHTML = '';
+            timezones.forEach(tz => {
+                const option = document.createElement('option');
+                option.value = tz;
+                datalist.appendChild(option);
+            });
+        });
+});
 </script>
 {% endblock %} 

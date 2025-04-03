@@ -19,6 +19,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 import secrets
 import requests
 from sqlalchemy import text
+from functools import lru_cache
 
 load_dotenv()
 
@@ -58,6 +59,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     google_id = db.Column(db.String(100), unique=True)
     calendar_token = db.Column(db.String(64), unique=True)
+    timezone = db.Column(db.String(50), default='UTC')  # Nouveau champ pour le fuseau horaire
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     calendars = db.relationship('Calendar', backref='user', lazy=True)
 
@@ -66,6 +68,7 @@ class User(UserMixin, db.Model):
         self.name = name
         self.google_id = google_id
         self.calendar_token = secrets.token_urlsafe(48)
+        self.timezone = 'UTC'  # Valeur par défaut
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -97,12 +100,23 @@ class Calendar(db.Model):
     color = db.Column(db.String(9), nullable=False, default='#FF9500FF')  # Format: #RRGGBBAA
     order = db.Column(db.Integer, default=0)  # Pour stocker calendar-order
     description = db.Column(db.Text)  # Pour stocker calendar-description
-    last_modified = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    last_modified = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    event_count = db.Column(db.Integer)  # Nouveau champ pour stocker le nombre d'événements
+    event_count_updated = db.Column(db.DateTime)  # Nouveau champ pour stocker la date de mise à jour du compteur
 
     @property
     def display_color(self):
         """Retourne la couleur au format RGB pour l'affichage."""
         return rgba_to_rgb(self.color)
+
+    def needs_event_count_update(self):
+        """Vérifie si le compteur d'événements doit être mis à jour."""
+        if not self.event_count_updated:
+            return True
+        # S'assurer que la date est en UTC
+        last_update = self.event_count_updated.replace(tzinfo=timezone.utc) if self.event_count_updated.tzinfo is None else self.event_count_updated
+        # Mettre à jour si plus vieux que 30 minutes
+        return (datetime.now(timezone.utc) - last_update) > timedelta(minutes=30)
 
     def __repr__(self):
         return f'<Calendar {self.name}>'
@@ -282,19 +296,66 @@ def oauth2callback():
         flash(f'Erreur lors de l\'authentification: {str(e)}', 'error')
         return redirect(url_for('login'))
 
+def user_timezone_now(user):
+    """Retourne la date et l'heure actuelles dans le fuseau horaire de l'utilisateur."""
+    utc_now = datetime.now(timezone.utc)
+    user_tz = pytz.timezone(user.timezone)
+    return utc_now.astimezone(user_tz)
+
+@app.route('/calendar/events/count')
+@login_required
+def get_events_count():
+    """Retourne le nombre d'événements à venir pour chaque calendrier."""
+    try:
+        calendars = Calendar.query.filter_by(user_id=current_user.id).all()
+        user_tz = pytz.timezone(current_user.timezone)
+        start_date = user_timezone_now(current_user)
+        end_date = start_date + timedelta(days=30)
+        
+        calendar_info = {}
+        for calendar in calendars:
+            # Vérifier si nous devons mettre à jour le compteur
+            if calendar.needs_event_count_update():
+                if calendar.calendar_source.type == 'google':
+                    events = get_google_calendar_events(calendar, start_date, end_date)
+                    event_count = len(events)
+                elif calendar.calendar_source.type == 'icloud':
+                    events = get_icloud_calendar_events(calendar, start_date, end_date)
+                    event_count = len(events)
+                else:
+                    event_count = 0
+
+                # Mettre à jour le cache avec une date UTC
+                calendar.event_count = event_count
+                calendar.event_count_updated = datetime.now(timezone.utc)
+                db.session.commit()
+            else:
+                event_count = calendar.event_count or 0
+
+            calendar_info[calendar.id] = {
+                'name': calendar.name,
+                'event_count': event_count
+            }
+        
+        return jsonify(calendar_info)
+    except Exception as e:
+        app.logger.error(f"Erreur lors du comptage des événements: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 def get_google_calendar_events(calendar, start_date=None, end_date=None):
     """Récupère les événements d'un calendrier Google."""
     if not start_date:
-        start_date = datetime.now(pytz.UTC)
+        start_date = user_timezone_now(calendar.user)
     if not end_date:
         end_date = start_date + timedelta(days=30)
     
     try:
-        if not calendar.credentials:
+        source = calendar.calendar_source
+        if not source or not source.credentials:
             app.logger.error(f"Pas d'informations d'identification pour le calendrier {calendar.name}")
             return []
 
-        creds_info = json.loads(calendar.credentials)
+        creds_info = json.loads(source.credentials)
         # Vérifier que toutes les informations nécessaires sont présentes
         required_fields = ['token', 'refresh_token', 'token_uri', 'client_id', 'client_secret', 'scopes']
         if not all(field in creds_info for field in required_fields):
@@ -514,21 +575,26 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
     """Récupère les événements d'un calendrier iCloud."""
     try:
         if not start_date:
-            start_date = datetime.now(pytz.UTC)
+            start_date = user_timezone_now(calendar.user)
         if not end_date:
             end_date = start_date + timedelta(days=30)
         
+        source = calendar.calendar_source
+        if not source or not source.credentials:
+            app.logger.error(f"Pas d'informations d'identification pour le calendrier {calendar.name}")
+            return []
+        
         # Décodage des informations d'identification
-        credentials = base64.b64decode(calendar.credentials).decode()
+        credentials = base64.b64decode(source.credentials).decode()
         username, password = credentials.split(':')
         
         # Connexion au calendrier
         client = caldav.DAVClient(
-            url=calendar.url,
+            url=source.url,
             username=username,
             password=password
         )
-        cal = client.calendar(url=calendar.url)
+        cal = client.calendar(url=f"{source.url}{calendar.calendar_id}")
         
         # Récupération des événements
         events = cal.date_search(
@@ -547,11 +613,15 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
     combined_cal.add('prodid', '-//Calfusion//Combined Calendar//EN')
     combined_cal.add('version', '2.0')
     
+    event_counts = {}  # Pour stocker le nombre d'événements par calendrier
+    
     for calendar in calendars:
         if not calendar.active:
             continue
             
-        if calendar.source_id == 1:
+        event_counts[calendar.id] = 0  # Initialiser le compteur pour ce calendrier
+            
+        if calendar.source_id == 1:  # Google Calendar
             events = get_google_calendar_events(calendar, start_date, end_date)
             for event in events:
                 cal_event = Event()
@@ -570,8 +640,9 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
                 
                 cal_event.add('color', calendar.color)
                 combined_cal.add_component(cal_event)
+                event_counts[calendar.id] += 1
                 
-        elif calendar.source_id == 2:
+        elif calendar.source_id == 2:  # iCloud Calendar
             events = get_icloud_calendar_events(calendar, start_date, end_date)
             for event in events:
                 vevent = event.vobject_instance.vevent
@@ -587,8 +658,9 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
                 cal_event.add('color', calendar.color)
                 
                 combined_cal.add_component(cal_event)
+                event_counts[calendar.id] += 1
     
-    return combined_cal
+    return combined_cal, event_counts
 
 @app.route('/calendar/<token>/combined.ics')
 def get_combined_calendar(token):
@@ -602,7 +674,7 @@ def get_combined_calendar(token):
         if not calendars:
             return jsonify({"status": "error", "message": "Aucun calendrier trouvé"}), 404
         
-        combined_cal = create_combined_calendar(calendars)
+        combined_cal, _ = create_combined_calendar(calendars)
         ical_data = combined_cal.to_ical()
         
         # Renvoyer avec les en-têtes appropriés pour l'abonnement au calendrier
@@ -629,7 +701,7 @@ def sync_calendars():
             return jsonify({"status": "error", "message": "Aucun calendrier trouvé"})
         
         # Création du calendrier combiné
-        combined_cal = create_combined_calendar(calendars)
+        combined_cal, _ = create_combined_calendar(calendars)
         
         return jsonify({
             "status": "success",
@@ -704,6 +776,12 @@ def logout():
 def manage_sources():
     """Page de gestion des sources de calendriers."""
     sources = CalendarSource.query.filter_by(user_id=current_user.id).all()
+    
+    # S'assurer que toutes les dates last_sync sont en UTC
+    for source in sources:
+        if source.last_sync and source.last_sync.tzinfo is None:
+            source.last_sync = source.last_sync.replace(tzinfo=timezone.utc)
+    
     return render_template('sources.html', sources=sources)
 
 @app.route('/sources/<int:source_id>/refresh', methods=['POST'])
@@ -1074,6 +1152,47 @@ def delete_account():
         app.logger.error(f"Erreur lors de la suppression du compte: {str(e)}")
         flash('Une erreur est survenue lors de la suppression du compte.', 'error')
         return redirect(url_for('index'))
+
+def is_valid_timezone(tz_name):
+    """Vérifie si le fuseau horaire est valide."""
+    try:
+        pytz.timezone(tz_name)
+        return True
+    except pytz.exceptions.UnknownTimeZoneError:
+        return False
+
+@app.route('/account/update_timezone', methods=['POST'])
+@login_required
+def update_timezone():
+    """Met à jour le fuseau horaire de l'utilisateur."""
+    try:
+        timezone_name = request.form.get('timezone')
+        if not timezone_name:
+            flash('Le fuseau horaire est requis.', 'error')
+            return redirect(url_for('index'))
+
+        if not is_valid_timezone(timezone_name):
+            flash('Fuseau horaire invalide. Veuillez utiliser un format comme "Europe/Paris".', 'error')
+            return redirect(url_for('index'))
+
+        current_user.timezone = timezone_name
+        db.session.commit()
+        flash('Fuseau horaire mis à jour avec succès.', 'success')
+        return redirect(url_for('index'))
+
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour du fuseau horaire: {str(e)}")
+        flash('Une erreur est survenue lors de la mise à jour du fuseau horaire.', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/timezones/search')
+@login_required
+def search_timezones():
+    """Recherche les fuseaux horaires correspondant à la requête."""
+    query = request.args.get('q', '').lower()
+    all_timezones = pytz.all_timezones
+    matching_timezones = [tz for tz in all_timezones if query in tz.lower()]
+    return jsonify(matching_timezones)
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')

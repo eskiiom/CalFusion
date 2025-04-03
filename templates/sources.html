@@ -93,80 +93,76 @@
 {% block content %}
 <div class="container mt-4">
     <h1>Gérer les sources de calendriers</h1>
-
-    {% for source in sources %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    {% if source.type == 'google' %}
-                        <i class="fab fa-google text-primary me-2"></i>
-                    {% elif source.type == 'icloud' %}
-                        <i class="fab fa-apple text-secondary me-2"></i>
-                    {% else %}
-                        <i class="far fa-calendar text-info me-2"></i>
-                    {% endif %}
-                    <strong>{{ source.name }}</strong>
-                </div>
-                <div class="d-flex align-items-center">
-                    {% if source.is_connected %}
-                        <span class="badge bg-success me-2">
-                            <i class="fas fa-check-circle"></i> Connecté
-                        </span>
-                        <span class="text-muted me-3">
-                            <i class="far fa-clock"></i> Dernière synchronisation : {{ source.last_sync.strftime('%d/%m/%Y %H:%M') if source.last_sync else 'Jamais' }}
-                        </span>
-                        <button class="btn btn-outline-primary me-2" onclick="showRefreshModal({{ source.id }})">
-                            <i class="fas fa-sync-alt"></i> Rafraîchir
-                        </button>
-                        <button class="btn btn-outline-danger me-2" onclick="showDisconnectModal({{ source.id }})">
-                            <i class="fas fa-unlink"></i> Déconnecter
-                        </button>
-                    {% else %}
-                        <span class="badge bg-secondary me-2">
-                            <i class="fas fa-times-circle"></i> Déconnecté
-                        </span>
-                        {% if source.type == 'google' %}
-                            <a href="{{ url_for('add_google_calendar') }}" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-link"></i> Reconnecter
-                            </a>
-                        {% elif source.type == 'icloud' %}
-                            <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-link"></i> Reconnecter
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <button class="btn btn-outline-warning" onclick="showPurgeModal({{ source.id }})">
-                        <i class="fas fa-trash"></i> Purger
-                    </button>
-                </div>
-            </div>
-
-            {% if source.calendars %}
-            <div class="mt-3">
-                <small class="text-muted">{{ source.calendars|length }} calendrier(s)</small>
-                <div class="list-group mt-2">
-                    {% for calendar in source.calendars %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="color-dot" style="background-color: {{ calendar.color }}"></span>
-                            {{ calendar.name }}
-                        </div>
-                        <div>
-                            {% if calendar.active %}
-                            <span class="badge bg-success">Actif</span>
+    <div class="row">
+        {% for source in sources %}
+        <div class="col-12 mb-4">
+            <div class="card source-card">
+                <div class="card-body">
+                    <div class="source-header">
+                        <div class="source-icon">
+                            {% if source.type == 'google' %}
+                                <i class="fab fa-google source-google"></i>
+                            {% elif source.type == 'icloud' %}
+                                <i class="fab fa-apple source-icloud"></i>
                             {% else %}
-                            <span class="badge bg-secondary">Inactif</span>
+                                <i class="far fa-calendar source-ics"></i>
                             {% endif %}
                         </div>
+                        <div class="source-info">
+                            <h5 class="card-title mb-1">{{ source.name }}</h5>
+                            <div class="source-status">
+                                <span class="{% if source.is_connected %}text-success{% else %}text-danger{% endif %}">
+                                    {% if source.is_connected %}
+                                        <i class="fas fa-check-circle"></i> Connecté
+                                    {% else %}
+                                        <i class="fas fa-times-circle"></i> Déconnecté
+                                    {% endif %}
+                                </span>
+                                {% if source.last_sync %}
+                                    <span class="text-muted ms-2">
+                                        <i class="far fa-clock"></i> Dernière synchronisation : 
+                                        <span class="last-sync" data-timestamp="{{ source.last_sync.timestamp() }}" data-timezone="{{ current_user.timezone }}">
+                                            {{ source.last_sync.strftime('%d/%m/%Y %H:%M') }}
+                                        </span>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="source-actions">
+                            <button class="btn btn-outline-primary btn-sm" onclick="showRefreshModal({{ source.id }})" title="Rafraîchir les calendriers">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="showDisconnectModal({{ source.id }})" title="Déconnecter la source">
+                                <i class="fas fa-unlink"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="showPurgeModal({{ source.id }})" title="Purger la source">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                    {% endfor %}
+                    <div class="source-calendars">
+                        <div class="calendar-count text-muted">
+                            {{ source.calendars|length }} calendrier{% if source.calendars|length != 1 %}s{% endif %}
+                        </div>
+                        <div class="calendar-list">
+                            {% for calendar in source.calendars %}
+                            <div class="calendar-item d-flex align-items-center mt-2 justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="color-dot" style="background-color: {{ calendar.display_color }}"></span>
+                                    {{ calendar.name }}
+                                </div>
+                                <span class="badge {% if calendar.active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if calendar.active %}Actif{% else %}Inactif{% endif %}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 
     <div class="card">
         <div class="card-body text-center">
@@ -426,5 +422,32 @@ function addIcsSource() {
         alert('Erreur lors de l\'ajout du calendrier');
     });
 }
+
+// Fonction pour formater les dates dans le fuseau horaire de l'utilisateur
+function updateLastSyncTimes() {
+    document.querySelectorAll('.last-sync').forEach(element => {
+        const timestamp = parseFloat(element.dataset.timestamp);
+        const timezone = element.dataset.timezone;
+        const date = new Date(timestamp * 1000);
+        
+        // Forcer le format JJ/MM/YYYY HH:mm avec le bon fuseau horaire
+        const options = {
+            timeZone: timezone,
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23'
+        };
+        
+        element.textContent = new Intl.DateTimeFormat('fr-FR', options).format(date);
+    });
+}
+
+// Mettre à jour les dates au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    updateLastSyncTimes();
+});
 </script>
 {% endblock %} 

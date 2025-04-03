@@ -5,7 +5,24 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2024-03-20
+## [1.2.1] - 2025-04-03
+
+### Ajouté
+- Indicateur de chargement (spinner) pendant le calcul du nombre d'événements
+- Tooltip indiquant que le nombre d'événements concerne les 30 prochains jours
+- Amélioration de la lisibilité de la liste des calendriers
+
+### Modifié
+- Correction de l'affichage des dates de synchronisation pour respecter le fuseau horaire de l'utilisateur
+- Optimisation du calcul du nombre d'événements avec mise en cache
+- Amélioration de la gestion des fuseaux horaires dans toute l'application
+
+### Technique
+- Correction de la gestion des fuseaux horaires dans les templates Jinja2
+- Amélioration de la conversion des dates en UTC dans la base de données
+- Optimisation de l'affichage des dates côté client
+
+## [1.2.0] - 2024-04-03
 
 ### Ajouté
 - Bouton d'ajout de calendrier ICS/iCal dans la page principale
@@ -41,7 +58,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Correction de l'alignement des icônes Apple et Google
 - Amélioration de la compatibilité avec les couleurs personnalisées
 
-## [1.1.0] - 2024-03-15
+## [1.1.0] - 2024-04-02
 
 ### Ajouté
 - Modales de confirmation pour les actions importantes (déconnexion, rafraîchissement, purge)
