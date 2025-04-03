@@ -230,6 +230,29 @@
 .syncing .spinner-border-sm {
     display: inline-block;
 }
+
+.btn-ics {
+    background-color: #28a745;
+    color: white;
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.btn-ics:hover {
+    background-color: #218838;
+    color: white;
+}
+
+@media (max-width: 576px) {
+    .btn-ics {
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
 {% endblock %}
 
 {% block content %}
@@ -237,15 +260,17 @@
     <div class="row">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Vos calendriers</h5>
+                    <button class="btn btn-outline-info btn-sm" type="button" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-html="true"
+                            data-bs-placement="left"
+                            title="L'activation ou la désactivation d'un calendrier peut prendre quelques secondes à quelques minutes selon la taille du calendrier.">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        L'activation ou la désactivation d'un calendrier peut prendre quelques secondes à quelques minutes selon la taille du calendrier.
-                    </div>
-
                     <div class="list-group">
                         {% for calendar in calendars %}
                         <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -291,9 +316,12 @@
                     <a href="{{ url_for('add_google_calendar') }}" class="btn btn-primary w-100 mb-2">
                         <i class="fab fa-google"></i> Ajouter un calendrier Google
                     </a>
-                    <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-secondary w-100">
+                    <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-secondary w-100 mb-2">
                         <i class="fab fa-apple"></i> Ajouter un calendrier iCloud
                     </a>
+                    <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addIcsModal">
+                        <i class="fas fa-link"></i> Ajouter un calendrier ICS/iCal
+                    </button>
                 </div>
             </div>
 
@@ -308,15 +336,17 @@
                         <button class="btn btn-outline-secondary" type="button" onclick="copyCalendarUrl(this)">
                             <i class="far fa-copy"></i>
                         </button>
-                    </div>
-                    <div class="alert alert-info mt-3">
-                        <strong>Note importante :</strong> Pour utiliser ce calendrier en tant qu'abonnement :
-                        <ul class="mb-0">
-                            <li>L'URL doit être accessible depuis Internet</li>
-                            <li>Dans Outlook : Utilisez "Ajouter un calendrier" > "À partir d'Internet"</li>
-                            <li>Dans Google Calendar : "Ajouter d'autres agendas" > "À partir d'une URL"</li>
-                            <li>Dans Apple Calendar : "Fichier" > "Nouvel abonnement au calendrier"</li>
-                        </ul>
+                        <button class="btn btn-outline-info ms-2" type="button" 
+                                data-bs-toggle="tooltip" 
+                                data-bs-html="true"
+                                data-bs-placement="left"
+                                title="<strong>Pour utiliser ce calendrier en tant qu'abonnement :</strong><br>
+                                       • L'URL doit être accessible depuis Internet<br>
+                                       • Dans Outlook : 'Ajouter un calendrier' > 'À partir d'Internet'<br>
+                                       • Dans Google Calendar : 'Ajouter d'autres agendas' > 'À partir d'une URL'<br>
+                                       • Dans Apple Calendar : 'Fichier' > 'Nouvel abonnement au calendrier'">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -369,6 +399,36 @@
                 <form action="{{ url_for('delete_account') }}" method="POST" style="display: inline;">
                     <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'ajout d'un calendrier ICS -->
+<div class="modal fade" id="addIcsModal" tabindex="-1" aria-labelledby="addIcsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addIcsModalLabel">Ajouter un calendrier ICS/iCal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addIcsForm">
+                    <div class="mb-3">
+                        <label for="icsName" class="form-label">Nom du calendrier</label>
+                        <input type="text" class="form-control" id="icsName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="icsUrl" class="form-label">URL du calendrier</label>
+                        <input type="url" class="form-control" id="icsUrl" name="url" required 
+                               placeholder="https://example.com/calendar.ics">
+                        <div class="form-text">L'URL doit pointer vers un fichier .ics ou .ical</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" onclick="submitIcsForm()">Ajouter</button>
             </div>
         </div>
     </div>
@@ -437,5 +497,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function submitIcsForm() {
+    const form = document.getElementById('addIcsForm');
+    const name = document.getElementById('icsName').value;
+    const url = document.getElementById('icsUrl').value;
+
+    fetch('/add_ics_calendar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: name,
+            url: url
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Une erreur est survenue lors de l\'ajout du calendrier.');
+    });
+}
 </script>
 {% endblock %} 

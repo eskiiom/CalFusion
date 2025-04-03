@@ -5,6 +5,25 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-03-20
+
+### Ajouté
+- Bouton d'ajout de calendrier ICS/iCal dans la page principale
+- Infobulles d'aide pour une meilleure expérience utilisateur
+- Modales de confirmation pour toutes les actions importantes
+
+### Modifié
+- Simplification de la barre de navigation
+- Suppression des éléments en double dans l'interface
+- Amélioration de la présentation des informations d'aide
+- Optimisation de l'espace d'affichage
+- Harmonisation des styles des boutons et des modales
+
+### Amélioré
+- Meilleure ergonomie de l'interface utilisateur
+- Clarification des instructions pour l'ajout de calendriers
+- Réduction de l'encombrement visuel
+
 ## [1.1.1] - 2025-04-03
 
 ### Ajouté
@@ -22,7 +41,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Correction de l'alignement des icônes Apple et Google
 - Amélioration de la compatibilité avec les couleurs personnalisées
 
-## [1.1.0] - 2024-03-20
+## [1.1.0] - 2024-03-15
 
 ### Ajouté
 - Modales de confirmation pour les actions importantes (déconnexion, rafraîchissement, purge)
@@ -40,25 +59,6 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Problèmes d'alignement des icônes dans l'interface
 - Affichage des couleurs des calendriers
 - Messages d'erreur peu clairs lors des actions sur les sources
-
-## [1.0.0] - 2024-03-15
-
-### Ajouté
-- Support initial pour Google Calendar, iCloud et calendriers ICS
-- Interface utilisateur de base
-- Système d'authentification
-- Génération d'URL de calendrier combiné
-- Documentation initiale
-
-### Planifié
-- Système d'authentification utilisateur via Google OAuth2
-- Gestion des utilisateurs avec base de données dédiée
-- URLs uniques et sécurisées pour les calendriers combinés
-- Interface de gestion de profil utilisateur
-- Indicateurs de statut de connexion pour Google et iCloud
-- Boutons de déconnexion individuels pour chaque service
-- Bouton de déconnexion global de l'application
-- Retours visuels améliorés pour les états de connexion
 
 ### Ajouté
 - Interface responsive pour les appareils mobiles

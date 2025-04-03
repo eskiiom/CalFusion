@@ -51,11 +51,34 @@ L'application propose plusieurs actions pour chaque source de calendrier :
 - Nécessite une confirmation via une modale avec avertissement
 
 ### Interface utilisateur
-- Interface moderne et intuitive basée sur Bootstrap
-- Modales de confirmation pour les actions importantes
-- Indicateurs visuels de statut (connecté/déconnecté)
-- Affichage des couleurs des calendriers
-- Gestion des erreurs avec messages explicites
+
+### Navigation
+- Barre de navigation simplifiée avec accès rapide aux fonctionnalités principales
+- Icônes intuitives pour une meilleure compréhension
+- Regroupement logique des fonctionnalités
+
+### Gestion des calendriers
+- Vue d'ensemble claire de tous vos calendriers
+- Activation/désactivation simple via des cases à cocher
+- Personnalisation des couleurs pour chaque calendrier
+- Infobulles d'aide contextuelle pour guider l'utilisateur
+
+### Ajout de calendriers
+Trois options disponibles pour ajouter des calendriers :
+1. **Google Calendar** : Connexion via OAuth2
+2. **iCloud Calendar** : Authentification via nom d'utilisateur/mot de passe d'application
+3. **Calendrier ICS/iCal** : Ajout via URL (disponible depuis la page principale ou la section Sources)
+
+### Calendrier combiné
+- URL unique et stable pour chaque utilisateur
+- Instructions d'utilisation accessibles via infobulle
+- Bouton de copie rapide de l'URL
+- Compatible avec les principaux clients de calendrier
+
+### Paramètres du compte
+- Vue d'ensemble des informations du compte
+- Options de gestion du compte
+- Confirmation de sécurité pour les actions importantes
 
 ### Gestion des Événements
 - Les événements sont récupérés en temps réel lors de l'accès au calendrier combiné
