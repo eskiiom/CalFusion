@@ -3,6 +3,7 @@ import sys
 import pytest
 from unittest.mock import patch
 from app import app as flask_app, db
+from app import User
 
 @pytest.fixture(autouse=True)
 def app():
@@ -35,16 +36,35 @@ def client(app):
 def runner(app):
     return app.test_cli_runner()
 
-def test_index_page(client):
+@pytest.fixture
+def test_user(app):
+    """Create a test user."""
+    with app.app_context():
+        user = User(
+            email="test@example.com",
+            name="Test User"
+        )
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+@pytest.fixture
+def logged_in_client(client, test_user):
+    """Create a client with a logged in user."""
+    with client.session_transaction() as session:
+        session['user_id'] = test_user.id
+    return client
+
+def test_index_page(logged_in_client):
     with flask_app.app_context():
-        response = client.get('/')
+        response = logged_in_client.get('/')
         assert response.status_code == 200
         # Vérifier le titre de la page au lieu du contenu spécifique
         assert b'CalFusion' in response.data
 
-def test_add_icloud_page(client):
+def test_add_icloud_page(logged_in_client):
     with flask_app.app_context():
-        response = client.get('/add_icloud_calendar')
+        response = logged_in_client.get('/add_icloud_calendar')
         assert response.status_code == 200
         assert b'identifiant' in response.data.lower() or b'apple id' in response.data.lower()
 
