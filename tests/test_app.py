@@ -47,16 +47,16 @@ def test_user(app):
         )
         db.session.add(user)
         db.session.commit()
-        return user
+        # Retourner l'ID au lieu de l'objet pour éviter les problèmes de session
+        return user.id
 
 @pytest.fixture
 def logged_in_client(client, test_user, app):
     """Create a client with a logged in user."""
     with app.app_context():
-        # Rafraîchir l'utilisateur pour s'assurer qu'il est attaché à la session
-        user = db.session.get(User, test_user.id)
+        # Utiliser l'ID directement au lieu de récupérer l'objet
         with client.session_transaction() as session:
-            session['user_id'] = user.id
+            session['user_id'] = test_user
     return client
 
 def test_index_page(logged_in_client):
