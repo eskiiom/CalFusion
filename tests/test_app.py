@@ -50,10 +50,13 @@ def test_user(app):
         return user
 
 @pytest.fixture
-def logged_in_client(client, test_user):
+def logged_in_client(client, test_user, app):
     """Create a client with a logged in user."""
-    with client.session_transaction() as session:
-        session['user_id'] = test_user.id
+    with app.app_context():
+        # Rafraîchir l'utilisateur pour s'assurer qu'il est attaché à la session
+        user = db.session.get(User, test_user.id)
+        with client.session_transaction() as session:
+            session['user_id'] = user.id
     return client
 
 def test_index_page(logged_in_client):
