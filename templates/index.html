@@ -3,45 +3,38 @@
 {% block title %}Vos calendriers - CalFusion{% endblock %}
 
 {% block additional_styles %}
+.card {
+    background-color: var(--cf-card-bg);
+    border: 1px solid var(--cf-card-border);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: var(--cf-navbar-bg);
+    border-bottom: 1px solid var(--cf-card-border);
+    padding: 0.8rem 1rem;
+}
+
 .calendar-list {
-    margin: 20px 0;
+    margin: 0;
+}
+
+.list-group-item {
+    background-color: var(--cf-card-bg);
+    border-color: var(--cf-card-border);
+    transition: all 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+    border-color: rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
 }
 
 .calendar-item {
     display: flex;
     align-items: center;
     padding: 12px;
-    border-left: 4px solid;
-    margin: 8px 0;
-    background-color: #f8f9fa;
-    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-@media (max-width: 576px) {
-    .calendar-item {
-        padding: 8px;
-    }
-
-    .calendar-item .flex-grow-1 {
-        width: 100%;
-        order: 1;
-        margin-top: 4px;
-    }
-
-    .calendar-toggle {
-        order: 0;
-        transform: scale(1.2);
-    }
-
-    .calendar-icon {
-        order: 0;
-    }
-
-    .spinner-border-sm {
-        order: 0;
-    }
+    transition: background-color 0.2s;
 }
 
 .calendar-toggle {
@@ -84,109 +77,28 @@
     display: block;
     margin-bottom: 2px;
     font-weight: 600;
+    color: var(--cf-text-color);
+}
+
+.event-count {
+    font-size: 0.875rem;
+    color: var(--cf-link-color);
 }
 
 .color-picker-wrapper {
     margin-left: auto;
-}
-
-.copy-section {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #e8f0fe;
-    border-radius: 4px;
-}
-
-.copy-url {
-    padding: 8px;
-    width: 100%;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-@media (max-width: 576px) {
-    .copy-url {
-        font-size: 12px;
-        padding: 6px;
-    }
-}
-
-.btn-google, .btn-icloud {
-    width: 100%;
-    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 10px;
-}
-
-@media (max-width: 576px) {
-    .btn-google, .btn-icloud {
-        padding: 12px;
-        font-size: 1rem;
-    }
-}
-
-.btn-google {
-    background-color: #4285F4;
-    color: white;
-}
-
-.btn-google:hover {
-    background-color: #357ABD;
-    color: white;
-}
-
-.btn-icloud {
-    background-color: #999999;
-    color: white;
-}
-
-.btn-icloud:hover {
-    background-color: #777777;
-    color: white;
-}
-
-.border-color {
-    border-left-color: var(--calendar-color);
-}
-
-.tooltip-inner {
-    max-width: 300px;
-    text-align: left;
-}
-
-@media (max-width: 576px) {
-    .tooltip-inner {
-        max-width: 200px;
-        font-size: 14px;
-    }
-}
-
-.calendar-item.syncing {
-    opacity: 0.7;
-    background-color: #e9ecef;
-}
-
-.calendar-item.success {
-    animation: successPulse 1s ease-in-out;
-}
-
-.calendar-item.error {
-    animation: errorShake 0.5s ease-in-out;
 }
 
 .calendar-color-picker {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     background: none;
-    margin-left: 10px;
 }
 
 .calendar-color-picker::-webkit-color-swatch-wrapper {
@@ -194,33 +106,13 @@
 }
 
 .calendar-color-picker::-webkit-color-swatch {
-    border: 2px solid #ddd;
+    border: 2px solid var(--cf-card-border);
     border-radius: 4px;
 }
 
 .calendar-color-picker::-moz-color-swatch {
-    border: 2px solid #ddd;
+    border: 2px solid var(--cf-card-border);
     border-radius: 4px;
-}
-
-@media (max-width: 576px) {
-    .calendar-color-picker {
-        width: 25px;
-        height: 25px;
-        margin-left: 8px;
-    }
-}
-
-@keyframes successPulse {
-    0% { background-color: #f8f9fa; }
-    50% { background-color: #d4edda; }
-    100% { background-color: #f8f9fa; }
-}
-
-@keyframes errorShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
 }
 
 .spinner-border-sm {
@@ -232,104 +124,101 @@
     display: inline-block;
 }
 
-.btn-ics {
-    background-color: #28a745;
-    color: white;
+.calendar-item.syncing {
+    opacity: 0.8;
+}
+
+.calendar-item.success {
+    animation: successPulse 1s ease-in-out;
+}
+
+.calendar-item.error {
+    animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes successPulse {
+    0% { background-color: var(--cf-card-bg); }
+    50% { background-color: rgba(40, 167, 69, 0.1); }
+    100% { background-color: var(--cf-card-bg); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.copy-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--cf-card-bg);
+    border: 1px solid var(--cf-card-border);
+    border-radius: 4px;
+}
+
+.copy-url {
+    padding: 8px;
     width: 100%;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--cf-card-border);
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: var(--cf-bg-color);
+    color: var(--cf-text-color);
 }
 
-.btn-ics:hover {
-    background-color: #218838;
-    color: white;
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
 }
 
-@media (max-width: 576px) {
-    .btn-ics {
-        padding: 12px;
-        font-size: 1rem;
-    }
-}
-
-.calendar-item {
-    transition: background-color 0.2s;
-}
-.calendar-item:hover {
-    background-color: rgba(0,0,0,.01);
-}
-.calendar-icon {
-    width: 24px;
-    text-align: center;
-}
-.calendar-info {
-    flex-grow: 1;
-}
-.event-count {
-    display: flex;
-    align-items: center;
-    min-height: 20px;
-}
-.event-count .spinner-border {
-    margin-right: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-}
-.count-text {
-    color: #6c757d;
-}
-.form-control-color {
-    width: 2.5rem;
-    padding: .25rem;
-    height: 2rem;
-}
 .tooltip ul {
     padding-left: 1rem;
-}
-
-.event-count {
-    display: flex;
-    align-items: center;
-    min-height: 20px;
-}
-
-.event-count .spinner-border {
-    margin-right: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-}
-
-.count-text {
-    color: #6c757d;
+    margin-bottom: 0;
 }
 
 @media (max-width: 576px) {
+    .calendar-item {
+        padding: 8px;
+    }
+
     .calendar-info {
         width: 100%;
     }
+
     .calendar-name {
         font-size: 0.95rem;
     }
+
     .event-count {
         font-size: 0.85rem;
     }
+
+    .tooltip-inner {
+        max-width: 200px;
+        font-size: 14px;
+    }
+
+    .copy-url {
+        font-size: 12px;
+        padding: 6px;
+    }
 }
 
-.calendar-item .row {
-    width: 100%;
-    margin: 0;
+.form-control {
+    background-color: var(--cf-bg-color);
+    border-color: var(--cf-card-border);
+    color: var(--cf-text-color);
 }
 
-.calendar-item .col {
-    padding-right: 0;
+.form-control:focus {
+    background-color: var(--cf-bg-color);
+    border-color: #86b7fe;
+    color: var(--cf-text-color);
 }
 
-.calendar-item .col-auto:last-child {
-    margin-left: auto;
-    padding-right: 15px;
+.form-text {
+    color: var(--cf-link-color);
 }
 {% endblock %}
 
@@ -340,7 +229,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Vos calendriers</h5>
-                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<ul class='text-start mb-0'><li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li><li>Personnalisez les couleurs avec le sélecteur de couleur</li><li>Le nombre d'événements indiqué correspond aux 30 prochains jours</li></ul>">
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<ul class='text-start mb-0'><li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li><li>Personnalisez les couleurs avec le sélecteur de couleur</li><li>Les couleurs des calendriers iCloud sont récupérées depuis l'API Apple</li><li>Le nombre d'événements indiqué correspond aux 30 prochains jours</li></ul>">
                         <i class="fas fa-info-circle"></i>
                     </button>
                 </div>
@@ -359,7 +248,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="d-flex align-items-center">
-                                        <div class="calendar-icon me-2">
+                                        <div class="calendar-icon">
                                             {% if calendar.calendar_source.type == 'google' %}
                                                 <i class="fab fa-google"></i>
                                             {% elif calendar.calendar_source.type == 'icloud' %}
@@ -381,11 +270,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-auto ms-auto">
-                                    <input type="color" class="form-control form-control-color calendar-color" 
-                                           value="{{ calendar.display_color }}" 
+                                <div class="col-auto">
+                                    <input type="color" class="calendar-color-picker" 
+                                           value="{{ calendar.display_color }}"
                                            data-calendar-id="{{ calendar.id }}"
-                                           title="Choisir la couleur">
+                                           title="Changer la couleur">
                                 </div>
                             </div>
                         </div>
@@ -418,9 +307,11 @@
                     <h5 class="mb-0">Calendrier combiné</h5>
                 </div>
                 <div class="card-body">
-                    <p>Accédez à votre calendrier combiné via ce lien :</p>
+                    <p class="text-muted mb-3">Accédez à votre calendrier combiné via ce lien :</p>
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{ url_for('get_combined_calendar', token=current_user.calendar_token, _external=True) }}" readonly>
+                        <input type="text" class="form-control copy-url" 
+                               value="{{ secure_url_for('get_combined_calendar', token=current_user.calendar_token) }}" 
+                               readonly>
                         <button class="btn btn-outline-secondary" type="button" onclick="copyCalendarUrl(this)">
                             <i class="far fa-copy"></i>
                         </button>
@@ -439,7 +330,7 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card mt-3">
                 <div class="card-header">
                     <h5 class="mb-0">Paramètres du compte</h5>
                 </div>
@@ -472,39 +363,10 @@
                             </div>
                         </form>
                     </div>
-                    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-user-times"></i> Supprimer mon compte
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-user-times"></i> Supprimer mon compte
+                    </button>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteAccountModalLabel">Supprimer le compte</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-danger">Attention ! Cette action est irréversible.</p>
-                <p>La suppression de votre compte entraînera :</p>
-                <ul>
-                    <li>La suppression de toutes vos sources de calendriers</li>
-                    <li>La désactivation de l'URL de votre calendrier combiné</li>
-                    <li>La perte de vos préférences et personnalisations</li>
-                </ul>
-                <p>Êtes-vous sûr de vouloir continuer ?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form action="{{ url_for('delete_account') }}" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
-                </form>
             </div>
         </div>
     </div>
@@ -540,6 +402,36 @@
     </div>
 </div>
 
+<!-- Modal pour la suppression du compte -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Supprimer le compte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">Attention ! Cette action est irréversible.</p>
+                <p>La suppression de votre compte entraînera :</p>
+                <ul>
+                    <li>La suppression de toutes vos sources de calendriers</li>
+                    <li>La désactivation de l'URL de votre calendrier combiné</li>
+                    <li>La perte de vos préférences et personnalisations</li>
+                </ul>
+                <p>Êtes-vous sûr de vouloir continuer ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form action="{{ url_for('delete_account') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
 function copyCalendarUrl(button) {
     var input = button.parentElement.querySelector('input');

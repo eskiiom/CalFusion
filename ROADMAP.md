@@ -8,6 +8,7 @@
   - Harmonisation des styles
   - Indicateurs de chargement
   - Tooltips informatifs
+  - Mode sombre
 - Gestion des calendriers
   - Support Google Calendar
   - Support iCloud Calendar
@@ -15,12 +16,14 @@
   - Personnalisation des couleurs
   - Affichage du nombre d'événements à venir
   - Gestion des fuseaux horaires
+  - URLs sécurisées (HTTPS)
 - Gestion du compte
   - Suppression de compte
   - Vue d'ensemble des informations
 - Optimisation des performances
   - Mise en cache du nombre d'événements
   - Gestion optimisée des dates et fuseaux horaires
+  - Sécurisation des communications
 
 ## Court terme (1-2 mois)
 - [ ] Optimisation des performances
@@ -32,7 +35,6 @@
   - [ ] FAQ utilisateur
   - [ ] Documentation technique
 - [ ] Améliorations de l'interface
-  - [ ] Mode sombre
   - [ ] Thèmes personnalisables
   - [ ] Raccourcis clavier
   - [ ] Statistiques d'utilisation
@@ -50,6 +52,7 @@
   - [ ] Interface en anglais
   - [ ] Interface en espagnol
   - [ ] Interface en allemand
+  - [ ] Interface en chinois
 
 ## Long terme (6+ mois)
 - [ ] Fonctionnalités avancées

@@ -7,15 +7,17 @@ Calfusion est une application web qui permet de fusionner des calendriers Google
 - Connexion aux calendriers Google via OAuth2
 - Connexion aux calendriers iCloud via CalDAV
 - Activation/désactivation des calendriers
-- Génération d'un calendrier ICS combiné
-- Interface utilisateur intuitive
+- Génération d'un calendrier ICS combiné sécurisé (HTTPS)
+- Interface utilisateur intuitive avec mode sombre
 - Support multilingue (FR/EN)
 - Intégration continue avec GitHub Actions
+- Gestion avancée des fuseaux horaires
+- URLs sécurisées pour tous les calendriers
 
 ## Fonctionnement
 
 ### URL du calendrier combiné
-- Une URL unique est générée pour chaque utilisateur lors de sa première connexion
+- Une URL unique et sécurisée (HTTPS) est générée pour chaque utilisateur lors de sa première connexion
 - Cette URL reste stable et ne change pas, même après une déconnexion/reconnexion
 - L'URL est de la forme : `https://votre-domaine/calendar/<token>`
 - Le token est généré de manière sécurisée et unique pour chaque utilisateur
@@ -56,12 +58,16 @@ L'application propose plusieurs actions pour chaque source de calendrier :
 - Barre de navigation simplifiée avec accès rapide aux fonctionnalités principales
 - Icônes intuitives pour une meilleure compréhension
 - Regroupement logique des fonctionnalités
+- Support du mode sombre
+- Thème adaptatif selon les préférences système
 
 ### Gestion des calendriers
 - Vue d'ensemble claire de tous vos calendriers
 - Activation/désactivation simple via des cases à cocher
 - Personnalisation des couleurs pour chaque calendrier
-- Infobulles d'aide contextuelle pour guider l'utilisateur
+- Infobulles d'aide contextuelle détaillées
+- Affichage des dates dans le fuseau horaire de l'utilisateur
+- Indicateurs de synchronisation en temps réel
 
 ### Ajout de calendriers
 Trois options disponibles pour ajouter des calendriers :

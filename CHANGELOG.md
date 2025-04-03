@@ -139,4 +139,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Initialisation automatique des tooltips Bootstrap
 - Nouvelle route API pour la mise à jour des couleurs de calendrier
 - Validation des couleurs côté serveur
-- Gestion des erreurs avec restauration automatique 
+- Gestion des erreurs avec restauration automatique
+
+## [1.2.2] - 2024-04-04
+
+### Ajouté
+- Sécurisation des URLs avec HTTPS forcé
+- Nouvelle fonction `secure_url_for` pour générer des URLs sécurisées
+- Gestion améliorée des fuseaux horaires dans l'affichage des dates de synchronisation
+
+### Modifié
+- Correction de l'affichage des dates de dernière synchronisation pour respecter le fuseau horaire de l'utilisateur
+- Mise à jour de l'URL du calendrier combiné pour utiliser HTTPS
+- Amélioration des infobulles avec des informations plus détaillées
+
+### Technique
+- Import du module timezone dans les templates
+- Optimisation de la gestion des fuseaux horaires dans les templates Jinja2
+- Correction de la génération des URLs pour forcer HTTPS 

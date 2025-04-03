@@ -691,6 +691,16 @@ def get_combined_calendar(token):
         app.logger.error(f"Erreur lors de la génération du calendrier: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# Fonction pour s'assurer que les URLs sont en HTTPS
+def force_https_url_for(*args, **kwargs):
+    """Wrapper autour de url_for pour forcer HTTPS."""
+    kwargs['_external'] = True
+    kwargs['_scheme'] = 'https'
+    return url_for(*args, **kwargs)
+
+# Rendre la fonction disponible dans les templates
+app.jinja_env.globals['secure_url_for'] = force_https_url_for
+
 @app.route('/sync_calendars')
 @login_required
 def sync_calendars():
