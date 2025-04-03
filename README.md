@@ -270,7 +270,7 @@ python app.py
 
 2. Ouvrir un navigateur et aller à l'URL configurée dans APP_BASE_URL
    - En local : http://votre-ip:5000 (ex: http://192.168.0.109:5000)
-   - En production : http://votre-domaine:5000
+   - En production : https://votre-domaine:5000
 
 3. Connecter vos calendriers :
    - Cliquer sur "Ajouter un calendrier Google"
