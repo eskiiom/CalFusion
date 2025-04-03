@@ -42,7 +42,8 @@ def test_user(app):
     with app.app_context():
         user = User(
             email="test@example.com",
-            name="Test User"
+            name="Test User",
+            google_id="test_google_id"
         )
         db.session.add(user)
         db.session.commit()
