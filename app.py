@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 import json
@@ -58,7 +58,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     google_id = db.Column(db.String(100), unique=True)
     calendar_token = db.Column(db.String(64), unique=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     calendars = db.relationship('Calendar', backref='user', lazy=True)
 
     def __init__(self, email, name, google_id):
@@ -80,8 +80,8 @@ class CalendarSource(db.Model):
     url = db.Column(db.Text)  # Pour les sources ICS ou les URLs CalDAV
     last_sync = db.Column(db.DateTime)
     is_connected = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     calendars = db.relationship('Calendar', backref='calendar_source', lazy=True)
 
     def __repr__(self):
@@ -97,7 +97,7 @@ class Calendar(db.Model):
     color = db.Column(db.String(9), nullable=False, default='#FF9500FF')  # Format: #RRGGBBAA
     order = db.Column(db.Integer, default=0)  # Pour stocker calendar-order
     description = db.Column(db.Text)  # Pour stocker calendar-description
-    last_modified = db.Column(db.DateTime, default=datetime.now(UTC))
+    last_modified = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     @property
     def display_color(self):
@@ -243,14 +243,14 @@ def oauth2callback():
                 user_id=user.id,
                 credentials=json.dumps(creds_info),
                 is_connected=True,
-                last_sync=datetime.now(UTC)
+                last_sync=datetime.now(timezone.utc)
             )
             db.session.add(google_source)
             db.session.flush()  # Pour obtenir l'ID de la source
         else:
             google_source.credentials = json.dumps(creds_info)
             google_source.is_connected = True
-            google_source.last_sync = datetime.now(UTC)
+            google_source.last_sync = datetime.now(timezone.utc)
         
         # Récupérer les calendriers Google
         calendar_service = build('calendar', 'v3', credentials=credentials)
@@ -376,7 +376,7 @@ def add_icloud_calendar():
                     credentials=credentials,
                     url=caldav_url,
                     is_connected=True,
-                    last_sync=datetime.now(UTC)
+                    last_sync=datetime.now(timezone.utc)
                 )
                 db.session.add(icloud_source)
                 db.session.flush()
@@ -384,7 +384,7 @@ def add_icloud_calendar():
                 icloud_source.credentials = credentials
                 icloud_source.url = caldav_url
                 icloud_source.is_connected = True
-                icloud_source.last_sync = datetime.now(UTC)
+                icloud_source.last_sync = datetime.now(timezone.utc)
                 Calendar.query.filter_by(source_id=icloud_source.id).update({'active': True})
             
             for cal in calendars:
@@ -495,7 +495,7 @@ def add_icloud_calendar():
                         order=calendar_order,
                         description=calendar_description,
                         user_id=current_user.id,
-                        last_modified=datetime.now(UTC)
+                        last_modified=datetime.now(timezone.utc)
                     )
                     db.session.add(new_calendar)
                     app.logger.info(f"Calendrier ajouté à la base de données: {display_name}")
@@ -790,7 +790,7 @@ def refresh_source(source_id):
             else:
                 source.is_connected = False
         
-        source.last_sync = datetime.now(UTC)
+        source.last_sync = datetime.now(timezone.utc)
         db.session.commit()
         
         return jsonify({'success': True})
@@ -852,7 +852,7 @@ def add_ics_source():
             url=url,
             user_id=current_user.id,
             is_connected=True,
-            last_sync=datetime.now(UTC)
+            last_sync=datetime.now(timezone.utc)
         )
         db.session.add(source)
         
@@ -946,7 +946,7 @@ def migrate_to_sources():
                         user_id=user.id,
                         credentials=google_calendars[0].credentials,
                         is_connected=True,
-                        last_sync=datetime.now(UTC)
+                        last_sync=datetime.now(timezone.utc)
                     )
                     db.session.add(google_source)
                     db.session.flush()  # Pour obtenir l'ID de la source
@@ -972,7 +972,7 @@ def migrate_to_sources():
                         credentials=icloud_calendars[0].credentials,
                         url=icloud_calendars[0].url if hasattr(icloud_calendars[0], 'url') else None,
                         is_connected=True,
-                        last_sync=datetime.now(UTC)
+                        last_sync=datetime.now(timezone.utc)
                     )
                     db.session.add(icloud_source)
                     db.session.flush()  # Pour obtenir l'ID de la source
