@@ -1043,6 +1043,38 @@ def rgba_to_rgb(rgba_color):
     # Format invalide, retourner la couleur par défaut
     return '#FF9500'
 
+@app.route('/account/delete', methods=['POST'])
+@login_required
+def delete_account():
+    """Supprime le compte de l'utilisateur et toutes ses données associées."""
+    try:
+        user_id = current_user.id
+        
+        # Supprimer tous les calendriers de l'utilisateur
+        Calendar.query.filter_by(user_id=user_id).delete()
+        
+        # Supprimer toutes les sources de calendrier
+        CalendarSource.query.filter_by(user_id=user_id).delete()
+        
+        # Supprimer l'utilisateur
+        user = db.session.get(User, user_id)
+        db.session.delete(user)
+        
+        # Déconnecter l'utilisateur
+        logout_user()
+        
+        # Commit des changements
+        db.session.commit()
+        
+        flash('Votre compte a été supprimé avec succès.', 'success')
+        return redirect(url_for('login'))
+        
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Erreur lors de la suppression du compte: {str(e)}")
+        flash('Une erreur est survenue lors de la suppression du compte.', 'error')
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
     port = int(os.getenv('FLASK_PORT', 5000))

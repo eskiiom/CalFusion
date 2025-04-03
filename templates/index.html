@@ -320,6 +320,56 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Paramètres du compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column">
+                        <div class="mb-3">
+                            <strong>Email :</strong> {{ current_user.email }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Nom :</strong> {{ current_user.name }}
+                        </div>
+                        <div class="mb-3">
+                            <strong>Date d'inscription :</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="fas fa-user-times"></i> Supprimer mon compte
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Supprimer le compte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">Attention ! Cette action est irréversible.</p>
+                <p>La suppression de votre compte entraînera :</p>
+                <ul>
+                    <li>La suppression de toutes vos sources de calendriers</li>
+                    <li>La désactivation de l'URL de votre calendrier combiné</li>
+                    <li>La perte de vos préférences et personnalisations</li>
+                </ul>
+                <p>Êtes-vous sûr de vouloir continuer ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form action="{{ url_for('delete_account') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

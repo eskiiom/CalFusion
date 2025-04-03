@@ -72,4 +72,45 @@ Cette section sera mise à jour régulièrement avec les suggestions des utilisa
 - [ ] Support d'autres langues
 - [ ] Thèmes personnalisables
 - [ ] Applications mobiles natives
-- [ ] Widget de calendrier embarqué 
+- [ ] Widget de calendrier embarqué
+
+## Court terme (1-2 mois)
+- [x] Amélioration de l'interface utilisateur
+  - [x] Ajout de modales de confirmation
+  - [x] Meilleure présentation des calendriers
+  - [x] Indicateurs visuels plus clairs
+- [ ] Optimisation des performances
+  - [ ] Mise en cache des événements
+  - [ ] Chargement asynchrone des calendriers
+- [ ] Amélioration de la documentation
+  - [x] Documentation détaillée sur le fonctionnement des sources
+  - [ ] Guide d'utilisation complet
+  - [ ] FAQ utilisateur
+
+## Moyen terme (3-6 mois)
+- [ ] Nouvelles fonctionnalités
+  - [ ] Filtrage des événements par type
+  - [ ] Personnalisation des couleurs des calendriers
+  - [ ] Notifications de synchronisation
+- [ ] Amélioration de la sécurité
+  - [ ] Authentification à deux facteurs
+  - [ ] Journalisation des actions utilisateur
+  - [ ] Gestion des sessions
+- [ ] Support multilingue
+  - [ ] Interface en anglais
+  - [ ] Interface en espagnol
+  - [ ] Interface en allemand
+
+## Long terme (6+ mois)
+- [ ] Fonctionnalités avancées
+  - [ ] Partage de calendriers entre utilisateurs
+  - [ ] Synchronisation bidirectionnelle
+  - [ ] API REST pour les développeurs
+- [ ] Intégrations
+  - [ ] Microsoft Outlook
+  - [ ] Calendrier local
+  - [ ] Autres services de calendrier
+- [ ] Améliorations techniques
+  - [ ] Migration vers une architecture microservices
+  - [ ] Mise en place d'un système de monitoring
+  - [ ] Optimisation de la base de données 

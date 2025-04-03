@@ -1,5 +1,17 @@
 {% extends "layout.html" %}
 
+{# 
+    Note sur les erreurs de linter :
+    Les erreurs de linter suivantes sont des faux positifs et peuvent être ignorées :
+    - Property assignment expected
+    - ',' expected
+    - at-rule or selector expected
+    
+    Ces erreurs sont dues à l'incompatibilité du linter avec la syntaxe des templates Jinja2.
+    Le code fonctionne correctement et le CSS est valide.
+    Les erreurs apparaissent car le linter essaie de parser le CSS comme du JavaScript ou du HTML standard.
+#}
+
 {% block title %}Gérer les sources - CalFusion{% endblock %}
 
 {% block additional_styles %}
@@ -68,6 +80,14 @@
 .modal-body .form-group {
     margin-bottom: 1rem;
 }
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
 {% endblock %}
 
 {% block content %}
@@ -96,10 +116,10 @@
                         <span class="text-muted me-3">
                             <i class="far fa-clock"></i> Dernière synchronisation : {{ source.last_sync.strftime('%d/%m/%Y %H:%M') if source.last_sync else 'Jamais' }}
                         </span>
-                        <button class="btn btn-outline-primary me-2" onclick="refreshSource({{ source.id }})">
+                        <button class="btn btn-outline-primary me-2" onclick="showRefreshModal({{ source.id }})">
                             <i class="fas fa-sync-alt"></i> Rafraîchir
                         </button>
-                        <button class="btn btn-outline-danger me-2" onclick="disconnectSource({{ source.id }})">
+                        <button class="btn btn-outline-danger me-2" onclick="showDisconnectModal({{ source.id }})">
                             <i class="fas fa-unlink"></i> Déconnecter
                         </button>
                     {% else %}
@@ -116,7 +136,7 @@
                             </a>
                         {% endif %}
                     {% endif %}
-                    <button class="btn btn-outline-warning" onclick="purgeSource({{ source.id }})">
+                    <button class="btn btn-outline-warning" onclick="showPurgeModal({{ source.id }})">
                         <i class="fas fa-trash"></i> Purger
                     </button>
                 </div>
@@ -199,20 +219,148 @@
     </div>
 </div>
 
-<style>
-.color-dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-</style>
+<!-- Modal pour la confirmation de déconnexion -->
+<div class="modal fade" id="disconnectModal" tabindex="-1" aria-labelledby="disconnectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="disconnectModalLabel">Confirmer la déconnexion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir déconnecter cette source de calendriers ?</p>
+                <p>Les calendriers associés seront désactivés mais pas supprimés.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmDisconnect">Déconnecter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour la confirmation de rafraîchissement -->
+<div class="modal fade" id="refreshModal" tabindex="-1" aria-labelledby="refreshModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="refreshModalLabel">Confirmer le rafraîchissement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Voulez-vous rafraîchir cette source de calendriers ?</p>
+                <p>Cette action va :</p>
+                <ul>
+                    <li>Vérifier la connexion avec la source</li>
+                    <li>Détecter les nouveaux calendriers</li>
+                    <li>Mettre à jour la liste des calendriers disponibles</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="confirmRefresh">Rafraîchir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour la confirmation de purge -->
+<div class="modal fade" id="purgeModal" tabindex="-1" aria-labelledby="purgeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="purgeModalLabel">Confirmer la purge</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir purger cette source de calendriers ?</p>
+                <p>Cette action est irréversible et va :</p>
+                <ul>
+                    <li>Supprimer définitivement tous les calendriers associés</li>
+                    <li>Supprimer tous les événements liés à ces calendriers</li>
+                    <li>Ne pas affecter les autres sources de calendriers</li>
+                </ul>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Cette action ne peut pas être annulée !
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmPurge">Purger</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
+let currentSourceId = null;
+
+function showDisconnectModal(sourceId) {
+    currentSourceId = sourceId;
+    const modal = new bootstrap.Modal(document.getElementById('disconnectModal'));
+    modal.show();
+}
+
+function showRefreshModal(sourceId) {
+    currentSourceId = sourceId;
+    const modal = new bootstrap.Modal(document.getElementById('refreshModal'));
+    modal.show();
+}
+
+function showPurgeModal(sourceId) {
+    currentSourceId = sourceId;
+    const modal = new bootstrap.Modal(document.getElementById('purgeModal'));
+    modal.show();
+}
+
+document.getElementById('confirmDisconnect').addEventListener('click', function() {
+    if (currentSourceId) {
+        disconnectSource(currentSourceId);
+        bootstrap.Modal.getInstance(document.getElementById('disconnectModal')).hide();
+    }
+});
+
+document.getElementById('confirmRefresh').addEventListener('click', function() {
+    if (currentSourceId) {
+        refreshSource(currentSourceId);
+        bootstrap.Modal.getInstance(document.getElementById('refreshModal')).hide();
+    }
+});
+
+document.getElementById('confirmPurge').addEventListener('click', function() {
+    if (currentSourceId) {
+        purgeSource(currentSourceId);
+        bootstrap.Modal.getInstance(document.getElementById('purgeModal')).hide();
+    }
+});
+
+function disconnectSource(sourceId) {
+    fetch(`/sources/${sourceId}/disconnect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur lors de la déconnexion : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la déconnexion.');
+    });
+}
+
 function refreshSource(sourceId) {
     fetch(`/sources/${sourceId}/refresh`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
     })
     .then(response => response.json())
     .then(data => {
@@ -223,49 +371,30 @@ function refreshSource(sourceId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Erreur lors du rafraîchissement');
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors du rafraîchissement.');
     });
 }
 
-function disconnectSource(sourceId) {
-    if (confirm('Êtes-vous sûr de vouloir déconnecter cette source ?')) {
-        fetch(`/sources/${sourceId}/disconnect`, {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erreur lors de la déconnexion : ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de la déconnexion');
-        });
-    }
-}
-
 function purgeSource(sourceId) {
-    if (confirm('Êtes-vous sûr de vouloir purger cette source ? Tous les calendriers associés seront supprimés.')) {
-        fetch(`/sources/${sourceId}/purge`, {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erreur lors de la purge : ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de la purge');
-        });
-    }
+    fetch(`/sources/${sourceId}/purge`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erreur lors de la purge : ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la purge.');
+    });
 }
 
 function addIcsSource() {

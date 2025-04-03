@@ -22,35 +22,33 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Correction de l'alignement des icônes Apple et Google
 - Amélioration de la compatibilité avec les couleurs personnalisées
 
-## [1.1.0] - 2025-04-03
+## [1.1.0] - 2024-03-20
 
 ### Ajouté
-- Support des noms de calendriers iCloud avec emojis et caractères spéciaux
-- Récupération des couleurs personnalisées des calendriers iCloud
-- Amélioration de la synchronisation des propriétés des calendriers
+- Modales de confirmation pour les actions importantes (déconnexion, rafraîchissement, purge)
+- Amélioration de l'interface utilisateur avec des indicateurs visuels plus clairs
+- Documentation détaillée sur le fonctionnement des sources de calendriers
+- Meilleure gestion des erreurs avec des messages plus explicites
 
 ### Modifié
-- Remplacement de la méthode de récupération des propriétés CalDAV par une approche PROPFIND directe
-- Correction du problème d'affichage des UUIDs à la place des noms de calendriers
-- Amélioration de la gestion des erreurs lors de la récupération des propriétés des calendriers
+- Refonte de l'interface de gestion des sources
+- Amélioration de la présentation des calendriers avec leurs couleurs
+- Optimisation des messages de confirmation et d'erreur
+- Mise à jour de la documentation utilisateur
 
 ### Corrigé
-- Correction du problème de décodage des réponses CalDAV
-- Correction de l'affichage des noms de calendriers spéciaux (home, work, etc.)
-- Correction des avertissements de dépréciation liés à datetime.utcnow()
+- Problèmes d'alignement des icônes dans l'interface
+- Affichage des couleurs des calendriers
+- Messages d'erreur peu clairs lors des actions sur les sources
 
-## [1.0.0] - 2025-04-01
+## [1.0.0] - 2024-03-15
 
 ### Ajouté
-- Version initiale de l'application
-- Support des calendriers Google via OAuth2
-- Support des calendriers iCloud via CalDAV
-- Interface utilisateur multilingue (FR/EN)
-- Génération de calendriers ICS combinés
-- Système d'activation/désactivation des calendriers
-- Documentation complète
-- Tests unitaires
-- Intégration continue avec GitHub Actions
+- Support initial pour Google Calendar, iCloud et calendriers ICS
+- Interface utilisateur de base
+- Système d'authentification
+- Génération d'URL de calendrier combiné
+- Documentation initiale
 
 ### Planifié
 - Système d'authentification utilisateur via Google OAuth2

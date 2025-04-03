@@ -14,8 +14,48 @@ Calfusion est une application web qui permet de fusionner des calendriers Google
 
 ## Fonctionnement
 
-### URL du Calendrier Combiné
-Lors de la création d'un compte, un token unique et permanent est généré pour chaque utilisateur. Ce token est utilisé pour créer l'URL du calendrier combiné (ex: http://votre-domaine/calendar/[token]/combined.ics). Cette URL reste stable tant que le compte existe et peut être utilisée de manière permanente dans vos applications de calendrier.
+### URL du calendrier combiné
+- Une URL unique est générée pour chaque utilisateur lors de sa première connexion
+- Cette URL reste stable et ne change pas, même après une déconnexion/reconnexion
+- L'URL est de la forme : `https://votre-domaine/calendar/<token>`
+- Le token est généré de manière sécurisée et unique pour chaque utilisateur
+
+### Rafraîchissement des sources
+Le bouton "Rafraîchir" pour chaque source de calendrier permet de :
+- Vérifier la connexion avec la source
+- Détecter les nouveaux calendriers
+- Mettre à jour la liste des calendriers disponibles
+
+Le rafraîchissement est nécessaire dans les cas suivants :
+- Ajout ou suppression de calendriers dans la source
+- Changement des permissions d'accès
+- Problème de synchronisation
+
+### Gestion des sources
+L'application propose plusieurs actions pour chaque source de calendrier :
+
+#### Déconnexion
+- Désactive temporairement la source
+- Conserve les calendriers associés
+- Permet de reconnecter la source ultérieurement
+- Nécessite une confirmation via une modale
+
+#### Rafraîchissement
+- Met à jour la liste des calendriers disponibles
+- Vérifie la connexion avec la source
+- Nécessite une confirmation via une modale
+
+#### Purge
+- Supprime définitivement la source et tous ses calendriers
+- Action irréversible
+- Nécessite une confirmation via une modale avec avertissement
+
+### Interface utilisateur
+- Interface moderne et intuitive basée sur Bootstrap
+- Modales de confirmation pour les actions importantes
+- Indicateurs visuels de statut (connecté/déconnecté)
+- Affichage des couleurs des calendriers
+- Gestion des erreurs avec messages explicites
 
 ### Gestion des Événements
 - Les événements sont récupérés en temps réel lors de l'accès au calendrier combiné
