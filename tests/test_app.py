@@ -54,9 +54,11 @@ def test_user(app):
 def logged_in_client(client, test_user, app):
     """Create a client with a logged in user."""
     with app.app_context():
-        # Utiliser l'ID directement au lieu de récupérer l'objet
+        # Récupérer l'utilisateur depuis la base de données
+        user = db.session.get(User, test_user)
+        # Utiliser login_user pour authentifier l'utilisateur
         with client.session_transaction() as session:
-            session['user_id'] = test_user
+            session['_user_id'] = str(user.id)  # Flask-Login utilise '_user_id' au lieu de 'user_id'
     return client
 
 def test_index_page(logged_in_client):
