@@ -1,94 +1,92 @@
 # Roadmap CalFusion
 
-## Réalisé
-- Interface utilisateur moderne et intuitive
-  - Navigation simplifiée
-  - Aide contextuelle (tooltips)
-  - Modales de confirmation
-  - Harmonisation des styles
-  - Indicateurs de chargement
-  - Tooltips informatifs
-  - Mode sombre
-  - Rafraîchissement dynamique des statistiques
-  - Mise en page responsive optimisée
-  - Gestion des noms longs avec ellipsis
-  - Espacement cohérent des éléments
-  - Interface adaptative mobile/desktop
-  - Raccourcis clavier
+## Fonctionnalités réalisées
 
-- Gestion des calendriers
-  - Support Google Calendar
-  - Support iCloud Calendar
-  - Support ICS/iCal
-  - Personnalisation des couleurs
-  - Affichage du nombre d'événements à venir
-  - Gestion des fuseaux horaires
-  - URLs sécurisées (HTTPS)
-  - Durée de synchronisation personnalisable
-  - Réorganisation par glisser-déposer
-  - Boutons de durée prédéfinis
+### Interface utilisateur
+- ✓ Navigation simplifiée et intuitive
+- ✓ Design responsive et adaptatif (mobile/desktop)
+- ✓ Mode sombre et thème adaptatif
+- ✓ Gestion optimisée des noms longs
+- ✓ Espacement cohérent des éléments
+- ✓ Tooltips et aide contextuelle
+- ✓ Modales de confirmation
+- ✓ Indicateurs de chargement
+- ✓ Raccourcis clavier
+- ✓ Statistiques en temps réel
 
-- Gestion du compte
-  - Suppression de compte
-  - Vue d'ensemble des informations
-  - Personnalisation des préférences utilisateur
-  - Statistiques d'utilisation détaillées
+### Gestion des calendriers
+- ✓ Support Google Calendar
+- ✓ Support iCloud Calendar
+- ✓ Support ICS/iCal
+- ✓ Personnalisation des couleurs
+- ✓ Compteur d'événements à venir
+- ✓ Gestion des fuseaux horaires
+- ✓ URLs sécurisées (HTTPS)
+- ✓ Durée de synchronisation personnalisable
+- ✓ Réorganisation par glisser-déposer
+- ✓ Boutons de durée prédéfinis
 
-- Performance
-  - Mise en cache du nombre d'événements
-  - Optimisation de la gestion des dates et fuseaux horaires
-  - Communications sécurisées
-  - Rafraîchissement partiel des données
-  - Optimisation mobile-first
+### Performance et sécurité
+- ✓ Mise en cache des événements
+- ✓ Optimisation mobile-first
+- ✓ Communications HTTPS
+- ✓ Rafraîchissement partiel des données
+- ✓ Gestion optimisée des dates et fuseaux horaires
 
-## Court terme (1-2 mois)
-- [ ] Optimisation des performances
-  - [ ] Mise en cache des calendriers
-  - [ ] Réduction du temps de chargement initial
-  - [ ] Optimisation des requêtes API
-- [ ] Documentation
-  - [ ] Guide d'utilisation détaillé
-  - [ ] Documentation API
-  - [ ] Guide de développement
-- [ ] Interface
-  - [ ] Filtres avancés pour les événements
-  - [ ] Vue agenda personnalisable
-  - [ ] Thèmes personnalisés
+## Prochaines étapes
 
-## Moyen terme (3-6 mois)
-- [ ] Nouvelles fonctionnalités
-  - [ ] Filtrage des événements par type
-  - [ ] Personnalisation avancée des calendriers
-  - [ ] Notifications de synchronisation
-  - [ ] Widgets personnalisables
-  - [ ] Mode hors ligne
-- [ ] Amélioration de la sécurité
-  - [ ] Authentification à deux facteurs
-  - [ ] Journalisation des actions utilisateur
-  - [ ] Gestion des sessions
-  - [ ] Chiffrement des données
-- [ ] Support multilingue
-  - [ ] Interface en anglais
-  - [ ] Interface en espagnol
-  - [ ] Interface en allemand
-  - [ ] Interface en chinois
-  - [ ] Détection automatique de la langue
+### Court terme (1-2 mois)
+#### Performance
+- [ ] Mise en cache des calendriers
+- [ ] Optimisation du temps de chargement initial
+- [ ] Optimisation des requêtes API
 
-## Long terme (6+ mois)
-- [ ] Fonctionnalités avancées
-  - [ ] Partage de calendriers entre utilisateurs
-  - [ ] Synchronisation bidirectionnelle
-  - [ ] API REST pour les développeurs
-  - [ ] Système de plugins
-  - [ ] Intégration avec des applications tierces
-- [ ] Intégrations
-  - [ ] Microsoft Outlook
-  - [ ] Calendrier local
-  - [ ] Autres services de calendrier
-  - [ ] Applications de productivité
-- [ ] Améliorations techniques
-  - [ ] Migration vers une architecture microservices
-  - [ ] Mise en place d'un système de monitoring
-  - [ ] Optimisation de la base de données
-  - [ ] Système de sauvegarde automatique
-  - [ ] Infrastructure cloud native 
+#### Documentation
+- [ ] Guide utilisateur détaillé
+- [ ] Documentation API
+- [ ] Guide de développement
+
+#### Interface
+- [ ] Filtres pour les événements
+- [ ] Vue agenda personnalisable
+- [ ] Thèmes personnalisés
+
+### Moyen terme (3-6 mois)
+#### Fonctionnalités
+- [ ] Filtrage par type d'événement
+- [ ] Widgets personnalisables
+- [ ] Mode hors ligne
+- [ ] Notifications de synchronisation
+
+#### Sécurité
+- [ ] Authentification 2FA
+- [ ] Journalisation des actions
+- [ ] Gestion avancée des sessions
+- [ ] Chiffrement des données
+
+#### Internationalisation
+- [ ] Interface en anglais
+- [ ] Interface en espagnol
+- [ ] Interface en allemand
+- [ ] Interface en chinois
+- [ ] Détection automatique de la langue
+
+### Long terme (6+ mois)
+#### Fonctionnalités avancées
+- [ ] Partage de calendriers entre utilisateurs
+- [ ] Synchronisation bidirectionnelle
+- [ ] API REST publique
+- [ ] Système de plugins
+
+#### Nouvelles intégrations
+- [ ] Microsoft Outlook
+- [ ] Calendrier local
+- [ ] Applications de productivité
+- [ ] Autres services de calendrier
+
+#### Infrastructure
+- [ ] Architecture microservices
+- [ ] Système de monitoring
+- [ ] Optimisation base de données
+- [ ] Sauvegarde automatique
+- [ ] Infrastructure cloud native 
