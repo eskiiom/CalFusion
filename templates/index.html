@@ -13,27 +13,6 @@
     background-color: var(--cf-navbar-bg);
     border-bottom: 1px solid var(--cf-card-border);
     padding: 0.8rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-@media (max-width: 576px) {
-    .card-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .card-header .btn-group {
-        width: 100%;
-        display: flex;
-    }
-
-    .card-header .btn {
-        flex: 1;
-    }
 }
 
 .calendar-list {
@@ -55,28 +34,85 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    cursor: default;
+    gap: 8px;
+    width: 100%;
 }
 
-.calendar-item.dragging {
-    opacity: 0.7;
-    transform: scale(0.98) translateY(2px);
-    z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: var(--cf-bg-color);
+.calendar-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+
+.calendar-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.calendar-name {
+    font-weight: 600;
+    color: var(--cf-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.event-count {
+    font-size: 0.875rem;
+    color: var(--cf-link-color);
+}
+
+.calendar-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    flex-shrink: 0;
+}
+
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.calendar-color-picker {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.form-check {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.calendar-toggle {
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .drag-handle {
     cursor: grab;
-    padding: 0 8px;
+    padding: 0;
     display: flex;
     align-items: center;
     color: var(--cf-text-color);
     opacity: 0.4;
-    transition: all 0.2s ease-in-out;
-    margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .drag-handle:hover {
@@ -136,121 +172,37 @@
     animation: dropHighlight 0.5s ease-out;
 }
 
-.calendar-toggle {
-    margin-right: 15px;
-    min-width: 20px;
-    min-height: 20px;
-}
-
-.calendar-info {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    min-width: 0;
-}
-
-.calendar-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    margin-right: 10px;
-    flex-shrink: 0;
-}
-
-.calendar-icon i {
-    font-size: 16px;
-}
-
-.calendar-details {
-    flex-grow: 1;
-    min-width: 0;
-    margin-right: 1rem;
-}
-
-.calendar-name {
-    display: block;
-    margin-bottom: 2px;
-    font-weight: 600;
-    color: var(--cf-text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.event-count {
-    font-size: 0.875rem;
-    color: var(--cf-link-color);
-}
-
-.calendar-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: auto;
-}
-
 @media (max-width: 576px) {
     .calendar-item {
         padding: 8px;
-        flex-wrap: wrap;
+        gap: 6px;
     }
-
+    
     .calendar-info {
-        width: calc(100% - 40px);
+        gap: 6px;
     }
-
-    .calendar-details {
-        margin-right: 0;
-    }
-
-    .calendar-actions {
-        width: 100%;
-        margin-left: 32px;
-        margin-top: 0.5rem;
-        justify-content: flex-end;
-    }
-
+    
     .calendar-name {
         font-size: 0.95rem;
     }
-
+    
     .event-count {
         font-size: 0.85rem;
     }
-
-    .drag-handle {
-        padding: 0 4px;
+    
+    .calendar-icon {
+        width: 20px;
     }
 }
 
-.color-picker-wrapper {
-    display: flex;
-    align-items: center;
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
 }
 
-.calendar-color-picker {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: none;
-}
-
-.calendar-color-picker::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-
-.calendar-color-picker::-webkit-color-swatch {
-    border: 2px solid var(--cf-card-border);
-    border-radius: 4px;
-}
-
-.calendar-color-picker::-moz-color-swatch {
-    border: 2px solid var(--cf-card-border);
-    border-radius: 4px;
+.tooltip ul {
+    padding-left: 1rem;
+    margin-bottom: 0;
 }
 
 .spinner-border-sm {
@@ -305,32 +257,6 @@
     color: var(--cf-text-color);
 }
 
-.tooltip-inner {
-    max-width: 300px;
-    text-align: left;
-}
-
-.tooltip ul {
-    padding-left: 1rem;
-    margin-bottom: 0;
-}
-
-@media (max-width: 576px) {
-    .copy-url {
-        font-size: 12px;
-        padding: 6px;
-    }
-
-    .btn-group {
-        flex-wrap: nowrap;
-    }
-
-    .btn-group .btn {
-        padding: 0.375rem 0.5rem;
-        font-size: 0.875rem;
-    }
-}
-
 .form-control {
     background-color: var(--cf-bg-color);
     border-color: var(--cf-card-border);
@@ -368,49 +294,41 @@
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for calendar in calendars %}
-                        <div class="list-group-item calendar-item" data-calendar-id="{{ calendar.id }}">
-                            <div class="row align-items-center w-100">
-                                <div class="col-auto drag-handle">
-                                    <i class="fas fa-grip-vertical"></i>
+                        <div class="list-group-item calendar-item" data-calendar-id="{{ calendar.id }}" title="{{ calendar.name }}">
+                            <div class="drag-handle">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input calendar-toggle" 
+                                       id="calendar-{{ calendar.id }}" 
+                                       data-calendar-id="{{ calendar.id }}"
+                                       {% if calendar.active %}checked{% endif %}>
+                            </div>
+                            <div class="calendar-info">
+                                <div class="calendar-icon">
+                                    {% if calendar.calendar_source.type == 'google' %}
+                                        <i class="fab fa-google"></i>
+                                    {% elif calendar.calendar_source.type == 'icloud' %}
+                                        <i class="fab fa-apple"></i>
+                                    {% else %}
+                                        <i class="far fa-calendar"></i>
+                                    {% endif %}
                                 </div>
-                                <div class="col-auto">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input calendar-toggle" 
-                                               id="calendar-{{ calendar.id }}" 
-                                               data-calendar-id="{{ calendar.id }}"
-                                               {% if calendar.active %}checked{% endif %}>
+                                <div class="calendar-content">
+                                    <span class="calendar-name">{{ calendar.name }}</span>
+                                    <div class="event-count small text-muted mt-1">
+                                        <div class="spinner-border spinner-border-sm text-muted" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                        <span class="count-text"></span>
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <div class="d-flex align-items-center">
-                                        <div class="calendar-icon">
-                                            {% if calendar.calendar_source.type == 'google' %}
-                                                <i class="fab fa-google"></i>
-                                            {% elif calendar.calendar_source.type == 'icloud' %}
-                                                <i class="fab fa-apple"></i>
-                                            {% else %}
-                                                <i class="far fa-calendar"></i>
-                                            {% endif %}
-                                        </div>
-                                        <div class="calendar-info">
-                                            <div class="d-flex flex-column">
-                                                <span class="calendar-name">{{ calendar.name }}</span>
-                                                <div class="event-count small text-muted mt-1">
-                                                    <div class="spinner-border spinner-border-sm text-muted" role="status">
-                                                        <span class="visually-hidden">Chargement...</span>
-                                                    </div>
-                                                    <span class="count-text"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                    <input type="color" class="calendar-color-picker" 
-                                           value="{{ calendar.display_color }}" 
-                                           data-calendar-id="{{ calendar.id }}"
-                                           title="Changer la couleur">
-                                </div>
+                            </div>
+                            <div class="calendar-controls">
+                                <input type="color" class="calendar-color-picker" 
+                                       value="{{ calendar.display_color }}" 
+                                       data-calendar-id="{{ calendar.id }}"
+                                       title="Changer la couleur">
                             </div>
                         </div>
                         {% endfor %}
@@ -614,13 +532,12 @@
 
 .drag-handle {
     cursor: grab;
-    padding: 0 8px;
+    padding: 0;
     display: flex;
     align-items: center;
     color: var(--cf-text-color);
     opacity: 0.4;
-    transition: all 0.2s ease-in-out;
-    margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .drag-handle:hover {
