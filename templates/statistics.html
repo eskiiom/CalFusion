@@ -72,6 +72,47 @@
                         </div>
                     </div>
 
+                    {% if active_calendars %}
+                    <h6 class="mb-3">Répartition des événements</h6>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                {% for calendar in active_calendars %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0" style="width: 24px;">
+                                            {% if calendar.calendar_source.type == 'google' %}
+                                                <i class="fab fa-google text-primary"></i>
+                                            {% elif calendar.calendar_source.type == 'icloud' %}
+                                                <i class="fab fa-apple text-secondary"></i>
+                                            {% else %}
+                                                <i class="far fa-calendar text-success"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="text-truncate" style="max-width: 200px;" title="{{ calendar.name }}">
+                                                    {{ calendar.name }}
+                                                </div>
+                                                <span class="badge bg-primary ms-2">{{ calendar.event_count }}</span>
+                                            </div>
+                                            <div class="progress mt-1" style="height: 4px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ (calendar.event_count / total_events * 100)|round|int if total_events > 0 else 0 }}%; background-color: {{ calendar.color }};" 
+                                                     aria-valuenow="{{ calendar.event_count }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="{{ total_events }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="card">
                         <div class="card-body">
                             <h6 class="card-title">Dernière synchronisation</h6>

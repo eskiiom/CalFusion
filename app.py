@@ -1220,37 +1220,49 @@ def format_datetime(value):
 def statistics():
     """Affiche les statistiques d'utilisation."""
     try:
-        # Récupérer tous les calendriers de l'utilisateur
-        calendars = Calendar.query.filter_by(user_id=current_user.id).all()
-        
         # Compter les calendriers par type
         calendar_counts = {
-            'google': 0,
-            'icloud': 0,
-            'ics': 0,
-            'total': len(calendars)
+            'google': Calendar.query.join(CalendarSource).filter(
+                CalendarSource.user_id == current_user.id,
+                CalendarSource.type == 'google'
+            ).count(),
+            'icloud': Calendar.query.join(CalendarSource).filter(
+                CalendarSource.user_id == current_user.id,
+                CalendarSource.type == 'icloud'
+            ).count(),
+            'ics': Calendar.query.join(CalendarSource).filter(
+                CalendarSource.user_id == current_user.id,
+                CalendarSource.type == 'ics'
+            ).count()
         }
-        
+        calendar_counts['total'] = sum(calendar_counts.values())
+
         # Compter les calendriers actifs
-        active_count = sum(1 for cal in calendars if cal.active)
-        
-        # Calculer le nombre total d'événements à venir
-        total_events = sum(cal.event_count or 0 for cal in calendars if cal.active)
-        
-        # Trouver la date de dernière synchronisation
-        last_sync = max((cal.last_modified for cal in calendars if cal.last_modified is not None), default=None)
-        
-        # Compter les calendriers par type
-        for cal in calendars:
-            source_type = cal.calendar_source.type if cal.calendar_source else 'unknown'
-            if source_type in calendar_counts:
-                calendar_counts[source_type] += 1
-        
+        active_count = Calendar.query.join(CalendarSource).filter(
+            CalendarSource.user_id == current_user.id,
+            Calendar.active == True
+        ).count()
+
+        # Récupérer les calendriers actifs avec leur nombre d'événements
+        active_calendars = Calendar.query.join(CalendarSource).filter(
+            CalendarSource.user_id == current_user.id,
+            Calendar.active == True
+        ).all()
+
+        # Calculer le nombre total d'événements
+        total_events = sum(calendar.event_count for calendar in active_calendars)
+
+        # Récupérer la dernière synchronisation
+        last_sync = CalendarSource.query.filter_by(
+            user_id=current_user.id
+        ).order_by(CalendarSource.last_sync.desc()).first()
+
         return render_template('statistics.html',
                              calendar_counts=calendar_counts,
                              active_count=active_count,
                              total_events=total_events,
-                             last_sync=last_sync)
+                             last_sync=last_sync.last_sync if last_sync else None,
+                             active_calendars=active_calendars)
     except Exception as e:
         app.logger.error(f"Erreur lors de la récupération des statistiques: {str(e)}")
         flash('Une erreur est survenue lors de la récupération des statistiques.', 'danger')
