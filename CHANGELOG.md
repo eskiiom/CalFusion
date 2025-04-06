@@ -200,3 +200,21 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Nouvelle route API pour la mise à jour des couleurs de calendrier
 - Validation des couleurs côté serveur
 - Gestion des erreurs avec restauration automatique 
+
+## [1.2.5] - 2024-04-06
+
+### Ajouté
+- Durée de synchronisation personnalisable (1-365 jours)
+- Boutons prédéfinis pour les durées courantes (1 semaine, 1 mois, 3 mois, 6 mois, 1 an)
+- Bouton de rafraîchissement des statistiques avec animation
+- Affichage dynamique de la période de synchronisation dans les statistiques
+
+### Modifié
+- Interface des paramètres du compte améliorée
+- Mise à jour en temps réel des statistiques sans rechargement complet
+- Optimisation de l'expérience utilisateur pour la gestion des préférences
+
+### Technique
+- Nouveau champ `sync_days` dans la table User
+- Mise à jour des requêtes de synchronisation pour utiliser la durée personnalisée
+- Implémentation d'un rafraîchissement AJAX pour les statistiques 

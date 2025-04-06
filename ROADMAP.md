@@ -1,15 +1,16 @@
-# Roadmap
+# Roadmap CalFusion
 
-## Réalisé ✅
+## Réalisé
 - Interface utilisateur moderne et intuitive
-  - Barre de navigation simplifiée
-  - Infobulles d'aide contextuelle
+  - Navigation simplifiée
+  - Aide contextuelle (tooltips)
   - Modales de confirmation
   - Harmonisation des styles
   - Indicateurs de chargement
   - Tooltips informatifs
   - Mode sombre
-  - Raccourcis clavier
+  - Rafraîchissement dynamique des statistiques
+
 - Gestion des calendriers
   - Support Google Calendar
   - Support iCloud Calendar
@@ -18,26 +19,29 @@
   - Affichage du nombre d'événements à venir
   - Gestion des fuseaux horaires
   - URLs sécurisées (HTTPS)
+  - Durée de synchronisation personnalisable
+
 - Gestion du compte
   - Suppression de compte
   - Vue d'ensemble des informations
-- Optimisation des performances
+  - Personnalisation des préférences utilisateur
+
+- Performance
   - Mise en cache du nombre d'événements
-  - Gestion optimisée des dates et fuseaux horaires
-  - Sécurisation des communications
+  - Optimisation de la gestion des dates et fuseaux horaires
+  - Communications sécurisées
+  - Rafraîchissement partiel des données
 
 ## Court terme (1-2 mois)
-- [ ] Optimisation des performances
-  - [ ] Mise en cache des événements
-  - [ ] Chargement asynchrone des calendriers
-  - [ ] Optimisation des requêtes de synchronisation
-- [ ] Amélioration de la documentation
-  - [ ] Guide d'utilisation complet
-  - [ ] FAQ utilisateur
-  - [ ] Documentation technique
-- [ ] Améliorations de l'interface
-  - [ ] Thèmes personnalisables
-  - [ ] Statistiques d'utilisation
+- Optimisation des performances
+  - Mise en cache des calendriers
+  - Réduction du temps de chargement initial
+- Documentation
+  - Guide d'utilisation détaillé
+  - Documentation API
+- Interface
+  - Tri personnalisé des calendriers
+  - Filtres avancés pour les événements
 
 ## Moyen terme (3-6 mois)
 - [ ] Nouvelles fonctionnalités
