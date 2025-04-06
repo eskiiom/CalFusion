@@ -218,3 +218,27 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Nouveau champ `sync_days` dans la table User
 - Mise à jour des requêtes de synchronisation pour utiliser la durée personnalisée
 - Implémentation d'un rafraîchissement AJAX pour les statistiques 
+
+## [1.2.6] - 2024-04-06
+
+### Ajouté
+- Amélioration de l'interface utilisateur pour les calendriers :
+  - Meilleure gestion des noms de calendriers longs avec ellipsis
+  - Espacement optimisé entre les éléments (poignée, case à cocher, icône)
+  - Mise en page adaptative selon la taille de l'écran
+
+### Modifié
+- Optimisation de la mise en page responsive :
+  - Utilisation de la largeur complète sur mobile
+  - Marges et espacements adaptés selon la taille d'écran
+  - Meilleure gestion des boutons de durée de synchronisation sur petits écrans
+- Amélioration de l'ergonomie :
+  - Espacement cohérent entre les éléments de la liste des calendriers
+  - Zones de clic plus accessibles sur mobile
+  - Meilleure lisibilité des noms de calendriers
+
+### Technique
+- Refonte du CSS avec une approche mobile-first
+- Utilisation optimisée des flexbox pour l'alignement des éléments
+- Amélioration des Media Queries pour une meilleure adaptation aux différents écrans
+- Optimisation des paddings et marges pour une meilleure cohérence visuelle 

@@ -33,17 +33,53 @@
 .calendar-item {
     display: flex;
     align-items: center;
-    padding: 12px;
-    gap: 8px;
+    padding: 12px 24px;
     width: 100%;
+}
+
+.drag-handle {
+    cursor: grab;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    color: var(--cf-text-color);
+    opacity: 0.4;
+    flex-shrink: 0;
+    width: 32px;
+}
+
+.form-check {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    flex-shrink: 0;
+}
+
+.calendar-toggle {
+    margin: 0;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
 }
 
 .calendar-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     min-width: 0;
     flex: 1;
+    margin-left: 4px;
+}
+
+.calendar-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    flex-shrink: 0;
 }
 
 .calendar-content {
@@ -67,18 +103,10 @@
     color: var(--cf-link-color);
 }
 
-.calendar-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    flex-shrink: 0;
-}
-
 .calendar-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     flex-shrink: 0;
     margin-left: auto;
 }
@@ -90,28 +118,6 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    flex-shrink: 0;
-}
-
-.form-check {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.calendar-toggle {
-    margin: 0;
-    flex-shrink: 0;
-}
-
-.drag-handle {
-    cursor: grab;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    color: var(--cf-text-color);
-    opacity: 0.4;
     flex-shrink: 0;
 }
 
@@ -173,25 +179,100 @@
 }
 
 @media (max-width: 576px) {
+    body {
+        padding: 0;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .card {
+        border-radius: 0;
+        margin-bottom: 0.5rem;
+    }
+
     .calendar-item {
-        padding: 8px;
-        gap: 6px;
+        padding: 8px 16px;
     }
     
+    .drag-handle {
+        padding: 4px;
+        width: 28px;
+    }
+
+    .form-check {
+        width: 36px;
+    }
+
     .calendar-info {
-        gap: 6px;
+        gap: 8px;
+        margin-left: 2px;
     }
-    
+
+    .calendar-icon {
+        width: 20px;
+    }
+
     .calendar-name {
         font-size: 0.95rem;
     }
-    
+
     .event-count {
         font-size: 0.85rem;
     }
-    
-    .calendar-icon {
-        width: 20px;
+
+    .calendar-controls {
+        gap: 8px;
+    }
+
+    .card-header {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .card-body {
+        padding: 0.8rem;
+    }
+
+    .mt-4 {
+        margin-top: 0 !important;
+    }
+}
+
+@media (min-width: 577px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+        max-width: 1140px;
+        margin: 0 auto;
+    }
+
+    .card {
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .calendar-item {
+        padding: 12px 24px;
+        gap: 16px;
+    }
+
+    .calendar-info {
+        gap: 12px;
+    }
+
+    .calendar-controls {
+        gap: 12px;
+    }
+
+    .drag-handle {
+        padding: 8px;
     }
 }
 
@@ -271,6 +352,57 @@
 
 .form-text {
     color: var(--cf-link-color);
+}
+
+/* Styles pour les boutons de durée */
+.sync-days-form .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+}
+
+.sync-days-form .btn-group .btn {
+    flex: 1 1 calc(33.333% - 4px);
+    min-width: 0;
+    white-space: nowrap;
+    padding: 6px 4px;
+}
+
+@media (max-width: 576px) {
+    .sync-days-form .btn-group {
+        gap: 2px;
+    }
+
+    .sync-days-form .btn-group .btn {
+        flex: 1 1 calc(50% - 2px);
+        font-size: 0.875rem;
+        padding: 4px 2px;
+    }
+
+    .input-group {
+        flex-wrap: nowrap;
+    }
+
+    .input-group .form-control {
+        min-width: 0;
+    }
+
+    .input-group .input-group-text {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .input-group .btn {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+@media (max-width: 400px) {
+    .sync-days-form .btn-group .btn {
+        flex: 1 1 100%;
+    }
 }
 {% endblock %}
 
@@ -429,7 +561,7 @@
                         <form action="{{ url_for('update_sync_days') }}" method="POST" class="sync-days-form">
                             <div class="mb-3">
                                 <div class="btn-group w-100" role="group">
-                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="7">1 semaine</button>
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="7">1 sem.</button>
                                     <button type="button" class="btn btn-outline-primary sync-preset" data-days="30">1 mois</button>
                                     <button type="button" class="btn btn-outline-primary sync-preset" data-days="90">3 mois</button>
                                     <button type="button" class="btn btn-outline-primary sync-preset" data-days="180">6 mois</button>
@@ -532,12 +664,13 @@
 
 .drag-handle {
     cursor: grab;
-    padding: 0;
+    padding: 8px;
     display: flex;
     align-items: center;
     color: var(--cf-text-color);
     opacity: 0.4;
     flex-shrink: 0;
+    width: 32px;
 }
 
 .drag-handle:hover {
