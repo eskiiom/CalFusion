@@ -137,9 +137,8 @@ SCOPES = [
 @app.route('/')
 @login_required
 def index():
-    app.logger.info(f"Accès à l'index - Utilisateur authentifié: {current_user.is_authenticated}")
-    app.logger.info(f"Email de l'utilisateur: {current_user.email if current_user.is_authenticated else 'Non connecté'}")
-    calendars = Calendar.query.filter_by(user_id=current_user.id).all()
+    """Page d'accueil avec la liste des calendriers."""
+    calendars = Calendar.query.filter_by(user_id=current_user.id).order_by(Calendar.order).all()
     return render_template('index.html', calendars=calendars)
 
 @app.route('/add_google_calendar')
@@ -1276,6 +1275,38 @@ def update_sync_days():
         app.logger.error(f"Erreur lors de la mise à jour de la durée de synchronisation: {str(e)}")
         flash('Une erreur est survenue lors de la mise à jour de la durée de synchronisation.', 'error')
         return redirect(url_for('index'))
+
+@app.route('/calendar/reorder', methods=['POST'])
+@login_required
+def reorder_calendars():
+    try:
+        data = request.get_json()
+        if not data or 'order' not in data:
+            return jsonify({'success': False, 'error': 'Données manquantes'}), 400
+
+        # Récupérer les IDs des calendriers dans le nouvel ordre
+        calendar_ids = data['order']
+        
+        # Vérifier que tous les calendriers appartiennent à l'utilisateur
+        calendars = Calendar.query.filter(
+            Calendar.id.in_(calendar_ids),
+            Calendar.user_id == current_user.id
+        ).all()
+        
+        if len(calendars) != len(calendar_ids):
+            return jsonify({'success': False, 'error': 'Calendriers invalides'}), 400
+        
+        # Mettre à jour l'ordre des calendriers
+        for index, calendar_id in enumerate(calendar_ids):
+            calendar = next(cal for cal in calendars if str(cal.id) == str(calendar_id))
+            calendar.order = index
+        
+        db.session.commit()
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        app.logger.error(f'Erreur lors de la réorganisation des calendriers : {str(e)}')
+        return jsonify({'success': False, 'error': 'Erreur serveur'}), 500
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')

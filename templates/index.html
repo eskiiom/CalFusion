@@ -34,7 +34,85 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    cursor: default;
+}
+
+.calendar-item.dragging {
+    opacity: 0.7;
+    transform: scale(0.98) translateY(2px);
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--cf-bg-color);
+}
+
+.drag-handle {
+    cursor: grab;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    color: var(--cf-text-color);
+    opacity: 0.4;
+    transition: all 0.2s ease-in-out;
+    margin-right: 4px;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    color: var(--bs-primary);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.drag-handle i {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.calendar-item:hover {
+    background-color: var(--cf-bg-color);
+}
+
+.calendar-item:hover .drag-handle {
+    opacity: 0.8;
+}
+
+.calendar-item:hover .drag-handle i {
+    animation: wiggle 1s ease-in-out;
+}
+
+.drag-above {
+    border-top: 2px solid var(--bs-primary);
+    margin-top: -1px;
+    transform: translateY(-2px);
+    box-shadow: 0 -2px 4px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.drag-below {
+    border-bottom: 2px solid var(--bs-primary);
+    margin-bottom: -1px;
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+@keyframes dropHighlight {
+    0% { background-color: rgba(var(--bs-primary-rgb), 0.1); }
+    100% { background-color: var(--cf-card-bg); }
+}
+
+.calendar-item.drop-highlight {
+    animation: dropHighlight 0.5s ease-out;
 }
 
 .calendar-toggle {
@@ -229,22 +307,31 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Vos calendriers</h5>
-                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<ul class='text-start mb-0'><li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li><li>Personnalisez les couleurs avec le sélecteur de couleur</li><li>Les couleurs des calendriers iCloud sont récupérées depuis l'API Apple</li><li>Le nombre d'événements indiqué correspond aux 30 prochains jours</li></ul>">
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" 
+                            title="<ul class='text-start mb-0'>
+                                <li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li>
+                                <li>Personnalisez les couleurs avec le sélecteur de couleur</li>
+                                <li>Les couleurs des calendriers iCloud sont récupérées depuis l'API Apple</li>
+                                <li>Le nombre d'événements indiqué correspond aux {{ current_user.sync_days }} prochains jours</li>
+                            </ul>">
                         <i class="fas fa-info-circle"></i>
                     </button>
-                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for calendar in calendars %}
                         <div class="list-group-item calendar-item" data-calendar-id="{{ calendar.id }}">
                             <div class="row align-items-center w-100">
-                                <div class="col-auto">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input calendar-toggle" 
-                                           id="calendar-{{ calendar.id }}" 
-                                           data-calendar-id="{{ calendar.id }}"
-                                           {% if calendar.active %}checked{% endif %}>
+                                <div class="col-auto drag-handle">
+                                    <i class="fas fa-grip-vertical"></i>
                                 </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input calendar-toggle" 
+                                               id="calendar-{{ calendar.id }}" 
+                                               data-calendar-id="{{ calendar.id }}"
+                                               {% if calendar.active %}checked{% endif %}>
+                                    </div>
                                 </div>
                                 <div class="col">
                                     <div class="d-flex align-items-center">
@@ -460,6 +547,93 @@
 </div>
 {% endblock %}
 
+{% block styles %}
+<style>
+.calendar-item {
+    cursor: default;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    background-color: var(--cf-card-bg);
+}
+
+.calendar-item.dragging {
+    opacity: 0.7;
+    transform: scale(0.98) translateY(2px);
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--cf-bg-color);
+}
+
+.drag-handle {
+    cursor: grab;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    color: var(--cf-text-color);
+    opacity: 0.4;
+    transition: all 0.2s ease-in-out;
+    margin-right: 4px;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    color: var(--bs-primary);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.drag-handle i {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.calendar-item:hover {
+    background-color: var(--cf-bg-color);
+}
+
+.calendar-item:hover .drag-handle {
+    opacity: 0.8;
+}
+
+.calendar-item:hover .drag-handle i {
+    animation: wiggle 1s ease-in-out;
+}
+
+.drag-above {
+    border-top: 2px solid var(--bs-primary);
+    margin-top: -1px;
+    transform: translateY(-2px);
+    box-shadow: 0 -2px 4px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+.drag-below {
+    border-bottom: 2px solid var(--bs-primary);
+    margin-bottom: -1px;
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.2);
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+@keyframes dropHighlight {
+    0% { background-color: rgba(var(--bs-primary-rgb), 0.1); }
+    100% { background-color: var(--cf-card-bg); }
+}
+
+.calendar-item.drop-highlight {
+    animation: dropHighlight 0.5s ease-out;
+}
+</style>
+{% endblock %}
+
 {% block scripts %}
 <script>
 function copyCalendarUrl(button) {
@@ -598,6 +772,111 @@ document.addEventListener('DOMContentLoaded', function() {
     // Marquer le bouton actif correspondant à la valeur actuelle
     const currentDays = document.getElementById('syncDays').value;
     document.querySelector(`.sync-preset[data-days="${currentDays}"]`)?.classList.add('active');
+
+    // Initialisation du drag-and-drop pour les calendriers
+    const calendarItems = document.querySelectorAll('.calendar-item');
+    calendarItems.forEach(item => {
+        item.draggable = true;
+
+        item.addEventListener('dragstart', function(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', '');
+        });
+
+        item.addEventListener('dragend', function(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.calendar-item').forEach(item => {
+                item.classList.remove('drag-above', 'drag-below');
+            });
+        });
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if (draggingItem === this) return;
+
+            const rect = this.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            const height = rect.height;
+
+            this.classList.remove('drag-above', 'drag-below');
+            if (y < height / 2) {
+                this.classList.add('drag-above');
+            } else {
+                this.classList.add('drag-below');
+            }
+        });
+
+        item.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-above', 'drag-below');
+        });
+
+        item.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if (draggingItem === this) return;
+
+            const allItems = [...document.querySelectorAll('.calendar-item')];
+            const draggedIndex = allItems.indexOf(draggingItem);
+            const droppedIndex = allItems.indexOf(this);
+
+            if (this.classList.contains('drag-above')) {
+                this.parentNode.insertBefore(draggingItem, this);
+            } else {
+                this.parentNode.insertBefore(draggingItem, this.nextSibling);
+            }
+
+            // Ajouter l'animation de highlight
+            draggingItem.classList.add('drop-highlight');
+            setTimeout(() => {
+                draggingItem.classList.remove('drop-highlight');
+            }, 500);
+
+            // Envoyer le nouvel ordre au serveur
+            const newOrder = [...document.querySelectorAll('.calendar-item')]
+                .map(item => item.dataset.calendarId);
+
+            fetch('/calendar/reorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order: newOrder })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Erreur lors de la réorganisation:', data.error);
+                    // Rétablir l'ordre initial en cas d'erreur
+                    if (draggedIndex < droppedIndex) {
+                        if (allItems[draggedIndex].nextSibling) {
+                            allItems[draggedIndex].parentNode.insertBefore(draggingItem, allItems[draggedIndex].nextSibling);
+                        } else {
+                            allItems[draggedIndex].parentNode.appendChild(draggingItem);
+                        }
+                    } else {
+                        allItems[draggedIndex].parentNode.insertBefore(draggingItem, allItems[draggedIndex]);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                // Rétablir l'ordre initial en cas d'erreur
+                if (draggedIndex < droppedIndex) {
+                    if (allItems[draggedIndex].nextSibling) {
+                        allItems[draggedIndex].parentNode.insertBefore(draggingItem, allItems[draggedIndex].nextSibling);
+                    } else {
+                        allItems[draggedIndex].parentNode.appendChild(draggingItem);
+                    }
+                } else {
+                    allItems[draggedIndex].parentNode.insertBefore(draggingItem, allItems[draggedIndex]);
+                }
+            });
+
+            this.classList.remove('drag-above', 'drag-below');
+        });
+    });
 });
 
 function submitIcsForm() {

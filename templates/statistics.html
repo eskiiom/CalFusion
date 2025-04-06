@@ -11,7 +11,7 @@
                     <h5 class="mb-0">Statistiques d'utilisation</h5>
                     <div class="d-flex align-items-center">
                         <button type="button" class="btn btn-primary btn-sm me-2" id="refreshStats">
-                            <i class="fas fa-sync-alt"></i> Rafraîchir
+                            <i class="fas fa-sync-alt me-1"></i> Rafraîchir
                         </button>
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" 
                                 title="Ces statistiques sont mises à jour en temps réel">
@@ -19,7 +19,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="statsContent">
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="card h-100">
@@ -89,39 +89,119 @@
         </div>
     </div>
 </div>
+
+<!-- Toast pour les notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> Statistiques mises à jour avec succès
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i> Erreur lors de la mise à jour
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.card {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card.refreshing {
+    opacity: 0.7;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spin-custom {
+    animation: spin 1s linear infinite;
+}
+
+.toast {
+    opacity: 0.9;
+}
+
+.toast:hover {
+    opacity: 1;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const refreshButton = document.getElementById('refreshStats');
+    const statsContent = document.getElementById('statsContent');
+    const successToast = new bootstrap.Toast(document.getElementById('successToast'), { delay: 3000 });
+    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'), { delay: 5000 });
+    let isRefreshing = false;
     
-    refreshButton.addEventListener('click', function() {
-        // Ajouter une classe pour l'animation de rotation
-        this.querySelector('i').classList.add('fa-spin');
+    refreshButton.addEventListener('click', async function() {
+        if (isRefreshing) return;
+        isRefreshing = true;
         
-        // Recharger la page
-        fetch(window.location.href)
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // Mettre à jour les statistiques
-                document.querySelector('.card-body').innerHTML = doc.querySelector('.card-body').innerHTML;
+        // Ajouter l'animation et désactiver le bouton
+        const icon = this.querySelector('i');
+        icon.classList.add('fa-spin-custom');
+        this.disabled = true;
+        statsContent.closest('.card').classList.add('refreshing');
+        
+        try {
+            // Récupérer les nouvelles statistiques
+            const response = await fetch(window.location.href);
+            if (!response.ok) throw new Error('Erreur réseau');
+            
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Mettre à jour le contenu
+            const newContent = doc.querySelector('#statsContent');
+            if (newContent) {
+                statsContent.innerHTML = newContent.innerHTML;
                 
                 // Réinitialiser les tooltips
                 const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 tooltips.forEach(function (tooltipTriggerEl) {
                     new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-            })
-            .finally(() => {
-                // Arrêter l'animation après 500ms pour un effet plus fluide
-                setTimeout(() => {
-                    this.querySelector('i').classList.remove('fa-spin');
-                }, 500);
-            });
+                
+                // Afficher le toast de succès
+                successToast.show();
+            } else {
+                throw new Error('Contenu invalide');
+            }
+        } catch (error) {
+            console.error('Erreur lors du rafraîchissement:', error);
+            errorToast.show();
+        } finally {
+            // Restaurer l'état initial
+            setTimeout(() => {
+                icon.classList.remove('fa-spin-custom');
+                this.disabled = false;
+                statsContent.closest('.card').classList.remove('refreshing');
+                isRefreshing = false;
+            }, 500);
+        }
+    });
+    
+    // Initialiser les tooltips au chargement
+    const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltips.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
 </script>
