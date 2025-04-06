@@ -172,3 +172,31 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Modifié
 - Amélioration de l'accessibilité avec des raccourcis clavier
 - Optimisation de l'interface utilisateur pour les actions rapides 
+
+## [1.2.4] - 2024-04-04
+
+### Ajouté
+- Nouvelle page de statistiques d'utilisation avec :
+  - Nombre total de calendriers et calendriers actifs
+  - Nombre d'événements à venir dans les 30 prochains jours
+  - Répartition des calendriers par type (Google, iCloud, ICS)
+  - Date de dernière synchronisation
+- Lien vers les statistiques dans la barre de navigation
+- Tooltip informatif sur la mise à jour en temps réel des statistiques
+
+### Modifié
+- Amélioration de la navigation avec l'ajout d'un accès rapide aux statistiques
+- Optimisation de l'affichage des données statistiques
+
+### Technique
+- Implémentation de Media Queries pour la réactivité
+- Optimisation des performances sur mobile
+- Ajout d'animations CSS pour le retour visuel
+- Gestion des états de synchronisation avec classes CSS
+- Utilisation des CSS Custom Properties pour la gestion des couleurs
+- Amélioration de la maintenabilité du code CSS
+- Correction des erreurs de linter dans les templates
+- Initialisation automatique des tooltips Bootstrap
+- Nouvelle route API pour la mise à jour des couleurs de calendrier
+- Validation des couleurs côté serveur
+- Gestion des erreurs avec restauration automatique 

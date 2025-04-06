@@ -364,6 +364,34 @@
                             </div>
                         </form>
                     </div>
+
+                    <div class="mb-4">
+                        <label class="form-label d-flex align-items-center">
+                            Durée de synchronisation
+                            <button type="button" class="btn btn-link btn-sm p-0 ms-1" data-bs-toggle="tooltip" data-bs-placement="right"
+                                    title="Choisissez la durée pendant laquelle vous souhaitez synchroniser vos événements à venir">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </label>
+                        <form action="{{ url_for('update_sync_days') }}" method="POST" class="sync-days-form">
+                            <div class="mb-3">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="7">1 semaine</button>
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="30">1 mois</button>
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="90">3 mois</button>
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="180">6 mois</button>
+                                    <button type="button" class="btn btn-outline-primary sync-preset" data-days="365">1 an</button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="sync_days" id="syncDays" 
+                                       value="{{ current_user.sync_days }}" min="1" max="365" required>
+                                <span class="input-group-text">jours</span>
+                                <button type="submit" class="btn btn-primary">Appliquer</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
                         <i class="fas fa-user-times"></i> Supprimer mon compte
                     </button>
@@ -552,6 +580,24 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(updateEventCounts, 500);
         });
     });
+
+    // Gestion des boutons prédéfinis de durée de synchronisation
+    document.querySelectorAll('.sync-preset').forEach(button => {
+        button.addEventListener('click', function() {
+            const days = this.dataset.days;
+            document.getElementById('syncDays').value = days;
+            
+            // Mettre à jour l'apparence des boutons
+            document.querySelectorAll('.sync-preset').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+    
+    // Marquer le bouton actif correspondant à la valeur actuelle
+    const currentDays = document.getElementById('syncDays').value;
+    document.querySelector(`.sync-preset[data-days="${currentDays}"]`)?.classList.add('active');
 });
 
 function submitIcsForm() {

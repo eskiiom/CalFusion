@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}CalFusion - Statistiques{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Statistiques d'utilisation</h5>
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" 
+                            title="Ces statistiques sont mises à jour en temps réel">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Calendriers</h6>
+                                    <div class="display-4 mb-2">{{ calendar_counts.total }}</div>
+                                    <p class="text-muted mb-0">{{ active_count }} actifs</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Événements à venir</h6>
+                                    <div class="display-4 mb-2">{{ total_events }}</div>
+                                    <p class="text-muted mb-0">dans les {{ current_user.sync_days }} prochains jours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3">Répartition par type</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fab fa-google fa-2x text-primary mb-2"></i>
+                                    <h6 class="card-title">Google</h6>
+                                    <div class="h4 mb-0">{{ calendar_counts.google }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fab fa-apple fa-2x text-secondary mb-2"></i>
+                                    <h6 class="card-title">iCloud</h6>
+                                    <div class="h4 mb-0">{{ calendar_counts.icloud }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                                    <h6 class="card-title">ICS/iCal</h6>
+                                    <div class="h4 mb-0">{{ calendar_counts.ics }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Dernière synchronisation</h6>
+                            <p class="card-text">
+                                {% if last_sync %}
+                                    {{ last_sync|datetime }}
+                                {% else %}
+                                    Aucune synchronisation effectuée
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

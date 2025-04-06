@@ -59,7 +59,8 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     google_id = db.Column(db.String(100), unique=True)
     calendar_token = db.Column(db.String(64), unique=True)
-    timezone = db.Column(db.String(50), default='UTC')  # Nouveau champ pour le fuseau horaire
+    timezone = db.Column(db.String(50), default='UTC')
+    sync_days = db.Column(db.Integer, default=30)  # Nouveau champ pour la durée de synchronisation
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     calendars = db.relationship('Calendar', backref='user', lazy=True)
 
@@ -68,7 +69,8 @@ class User(UserMixin, db.Model):
         self.name = name
         self.google_id = google_id
         self.calendar_token = secrets.token_urlsafe(48)
-        self.timezone = 'UTC'  # Valeur par défaut
+        self.timezone = 'UTC'
+        self.sync_days = 30  # Valeur par défaut
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -310,7 +312,7 @@ def get_events_count():
         calendars = Calendar.query.filter_by(user_id=current_user.id).all()
         user_tz = pytz.timezone(current_user.timezone)
         start_date = user_timezone_now(current_user)
-        end_date = start_date + timedelta(days=30)
+        end_date = start_date + timedelta(days=current_user.sync_days)
         
         calendar_info = {}
         for calendar in calendars:
@@ -347,7 +349,7 @@ def get_google_calendar_events(calendar, start_date=None, end_date=None):
     if not start_date:
         start_date = user_timezone_now(calendar.user)
     if not end_date:
-        end_date = start_date + timedelta(days=30)
+        end_date = start_date + timedelta(days=calendar.user.sync_days)
     
     try:
         source = calendar.calendar_source
@@ -577,7 +579,7 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
         if not start_date:
             start_date = user_timezone_now(calendar.user)
         if not end_date:
-            end_date = start_date + timedelta(days=30)
+            end_date = start_date + timedelta(days=calendar.user.sync_days)
         
         source = calendar.calendar_source
         if not source or not source.credentials:
@@ -1203,6 +1205,77 @@ def search_timezones():
     all_timezones = pytz.all_timezones
     matching_timezones = [tz for tz in all_timezones if query in tz.lower()]
     return jsonify(matching_timezones)
+
+@app.template_filter('datetime')
+def format_datetime(value):
+    """Format a datetime object."""
+    if value is None:
+        return ""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    local_dt = value.astimezone(pytz.timezone(current_user.timezone))
+    return local_dt.strftime("%d/%m/%Y %H:%M")
+
+@app.route('/statistics')
+@login_required
+def statistics():
+    """Affiche les statistiques d'utilisation."""
+    try:
+        # Récupérer tous les calendriers de l'utilisateur
+        calendars = Calendar.query.filter_by(user_id=current_user.id).all()
+        
+        # Compter les calendriers par type
+        calendar_counts = {
+            'google': 0,
+            'icloud': 0,
+            'ics': 0,
+            'total': len(calendars)
+        }
+        
+        # Compter les calendriers actifs
+        active_count = sum(1 for cal in calendars if cal.active)
+        
+        # Calculer le nombre total d'événements à venir
+        total_events = sum(cal.event_count or 0 for cal in calendars if cal.active)
+        
+        # Trouver la date de dernière synchronisation
+        last_sync = max((cal.last_modified for cal in calendars if cal.last_modified is not None), default=None)
+        
+        # Compter les calendriers par type
+        for cal in calendars:
+            source_type = cal.calendar_source.type if cal.calendar_source else 'unknown'
+            if source_type in calendar_counts:
+                calendar_counts[source_type] += 1
+        
+        return render_template('statistics.html',
+                             calendar_counts=calendar_counts,
+                             active_count=active_count,
+                             total_events=total_events,
+                             last_sync=last_sync)
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la récupération des statistiques: {str(e)}")
+        flash('Une erreur est survenue lors de la récupération des statistiques.', 'danger')
+        return redirect(url_for('index'))
+
+@app.route('/account/update_sync_days', methods=['POST'])
+@login_required
+def update_sync_days():
+    """Met à jour la durée de synchronisation des calendriers."""
+    try:
+        sync_days = request.form.get('sync_days', type=int)
+        if not sync_days or sync_days < 1 or sync_days > 365:
+            flash('La durée doit être comprise entre 1 et 365 jours.', 'error')
+            return redirect(url_for('index'))
+
+        current_user.sync_days = sync_days
+        db.session.commit()
+        flash('Durée de synchronisation mise à jour avec succès.', 'success')
+        return redirect(url_for('index'))
+
+    except Exception as e:
+        app.logger.error(f"Erreur lors de la mise à jour de la durée de synchronisation: {str(e)}")
+        flash('Une erreur est survenue lors de la mise à jour de la durée de synchronisation.', 'error')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
