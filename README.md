@@ -213,4 +213,310 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## Support
 
-Pour toute question ou problème, veuillez ouvrir une issue sur GitHub. 
+Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
+
+## Déploiement avec Docker
+
+### Prérequis
+- Docker
+- Docker Compose
+
+### Structure des fichiers Docker
+```
+calfusion/
+├── Dockerfile          # Configuration de l'image Docker
+├── docker-compose.yml  # Configuration de l'orchestration
+└── .dockerignore      # Liste des fichiers à exclure
+```
+
+### Configuration Docker
+
+#### Dockerfile
+Le Dockerfile utilise Python 3.10-slim comme base et configure l'environnement :
+```dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+
+# Installation des dépendances système
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation des dépendances Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Configuration de l'application
+COPY . .
+RUN useradd -m calfusion && \
+    chown -R calfusion:calfusion /app
+USER calfusion
+
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+
+EXPOSE 5000
+CMD ["flask", "run", "--host=0.0.0.0"]
+```
+
+#### Docker Compose
+Le fichier docker-compose.yml configure le service et ses dépendances :
+```yaml
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      # Variables à configurer
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SECRET_KEY=${SECRET_KEY}
+      - APP_BASE_URL=${APP_BASE_URL}
+    volumes:
+      - ./instance:/app/instance  # Base de données
+      - ./static:/app/static      # Fichiers statiques
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+### Utilisation
+
+1. **Préparation de l'environnement**
+```bash
+# Copier le fichier d'exemple
+cp .env.example .env
+
+# Éditer le fichier .env avec vos valeurs
+nano .env
+```
+
+2. **Construction et démarrage**
+```bash
+# Construire et démarrer les conteneurs
+docker-compose up --build -d
+
+# Voir les logs
+docker-compose logs -f
+
+# Arrêter les conteneurs
+docker-compose down
+```
+
+3. **Commandes utiles**
+```bash
+# Reconstruire l'image
+docker-compose build
+
+# Voir l'état des conteneurs
+docker-compose ps
+
+# Redémarrer le service
+docker-compose restart web
+```
+
+### Configuration pour le développement
+
+Pour le développement, modifiez le docker-compose.yml :
+```yaml
+services:
+  web:
+    volumes:
+      - .:/app  # Pour le hot-reload
+    environment:
+      - FLASK_ENV=development
+```
+
+### Configuration pour la production
+
+Pour un déploiement en production :
+
+1. **Sécurité**
+   - Utilisez un reverse proxy (Nginx) devant l'application
+   - Configurez HTTPS avec Let's Encrypt
+   - Assurez-vous que toutes les variables d'environnement sont sécurisées
+
+2. **Performance**
+   - Utilisez Gunicorn comme serveur WSGI
+   - Configurez la mise en cache appropriée
+   - Optimisez les paramètres Docker pour la production
+
+3. **Monitoring**
+   - Utilisez le healthcheck intégré
+   - Configurez la rotation des logs
+   - Mettez en place une surveillance des conteneurs
+
+4. **Sauvegarde**
+   - Configurez des sauvegardes régulières du volume `instance`
+   - Mettez en place une stratégie de restauration
+
+### Dépannage
+
+1. **Problèmes courants**
+   - Vérifiez les logs : `docker-compose logs -f`
+   - Vérifiez les permissions des volumes
+   - Assurez-vous que toutes les variables d'environnement sont définies
+
+2. **Maintenance**
+   - Nettoyez régulièrement les images non utilisées
+   - Surveillez l'utilisation des volumes
+   - Mettez à jour régulièrement l'image de base 
+
+### Publication de l'image Docker
+
+Il existe plusieurs options gratuites pour héberger vos images Docker :
+
+1. **GitHub Container Registry (ghcr.io)**
+   - Gratuit pour les repositories publics
+   - Intégré avec GitHub Actions
+   - Pas besoin de compte séparé
+
+   Configuration :
+   ```yaml
+   # .github/workflows/docker-publish.yml
+   name: Docker
+
+   on:
+     push:
+       branches: [ "main" ]
+     pull_request:
+       branches: [ "main" ]
+
+   env:
+     REGISTRY: ghcr.io
+     IMAGE_NAME: ${{ github.repository }}
+
+   jobs:
+     build-and-push:
+       runs-on: ubuntu-latest
+       permissions:
+         contents: read
+         packages: write
+
+       steps:
+         - name: Checkout repository
+           uses: actions/checkout@v4
+
+         - name: Log in to GitHub Container Registry
+           uses: docker/login-action@v3
+           with:
+             registry: ${{ env.REGISTRY }}
+             username: ${{ github.actor }}
+             password: ${{ secrets.GITHUB_TOKEN }}
+
+         - name: Build and push Docker image
+           uses: docker/build-push-action@v5
+           with:
+             context: .
+             push: true
+             tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+   ```
+
+2. **GitLab Container Registry**
+   - Gratuit pour les repositories publics
+   - Intégré avec GitLab CI/CD
+   - Pas de limite de stockage pour les projets publics
+
+   Configuration :
+   ```yaml
+   # .gitlab-ci.yml
+   docker-build:
+     image: docker:latest
+     services:
+       - docker:dind
+     script:
+       - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+       - docker build -t $CI_REGISTRY_IMAGE:latest .
+       - docker push $CI_REGISTRY_IMAGE:latest
+     only:
+       - main
+   ```
+
+3. **Quay.io**
+   - Gratuit pour les repositories publics
+   - Interface utilisateur moderne
+   - Fonctionnalités de sécurité avancées
+
+   Configuration :
+   ```yaml
+   # .github/workflows/docker-publish.yml
+   name: Docker
+
+   on:
+     push:
+       branches: [ "main" ]
+
+   env:
+     REGISTRY: quay.io
+     IMAGE_NAME: votre-username/calfusion
+
+   jobs:
+     build-and-push:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Checkout repository
+           uses: actions/checkout@v4
+
+         - name: Log in to Quay.io
+           uses: docker/login-action@v3
+           with:
+             registry: ${{ env.REGISTRY }}
+             username: ${{ secrets.QUAY_USERNAME }}
+             password: ${{ secrets.QUAY_TOKEN }}
+
+         - name: Build and push Docker image
+           uses: docker/build-push-action@v5
+           with:
+             context: .
+             push: true
+             tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+   ```
+
+4. **Publication locale**
+   Si vous préférez ne pas utiliser de registry externe, vous pouvez :
+   - Construire l'image localement
+   - La partager via un fichier tar
+   - La charger sur d'autres machines
+
+   ```bash
+   # Exporter l'image
+   docker save calfusion:latest > calfusion.tar
+
+   # Importer l'image sur une autre machine
+   docker load < calfusion.tar
+   ```
+
+### Utilisation des images
+
+1. **GitHub Container Registry**
+```bash
+docker pull ghcr.io/votre-username/calfusion:latest
+```
+
+2. **GitLab Container Registry**
+```bash
+docker pull registry.gitlab.com/votre-username/calfusion:latest
+```
+
+3. **Quay.io**
+```bash
+docker pull quay.io/votre-username/calfusion:latest
+```
+
+### Bonnes pratiques
+
+- Utilisez des tags sémantiques pour les versions (ex: `1.0.0`)
+- Maintenez un tag `latest` pour la dernière version
+- Documentez les changements dans le CHANGELOG.md
+- Scannez régulièrement les images pour les vulnérabilités
+- Mettez à jour régulièrement l'image de base 
