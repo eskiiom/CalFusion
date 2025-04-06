@@ -73,7 +73,13 @@
                     </div>
 
                     {% if active_calendars %}
-                    <h6 class="mb-3">Répartition des événements</h6>
+                    <h6 class="mb-3">
+                        Répartition des événements
+                        <i class="fas fa-info-circle ms-2" 
+                           data-bs-toggle="tooltip" 
+                           data-bs-html="true"
+                           title="Les tendances (↑↓=) s'affichent à partir du second rafraîchissement des données.<br><br>Elles comparent le nombre actuel d'événements avec celui du rafraîchissement précédent."></i>
+                    </h6>
                     <div class="card mb-4">
                         <div class="card-body">
                             <div class="row">
@@ -94,7 +100,16 @@
                                                 <div class="text-truncate" style="max-width: 200px;" title="{{ calendar.name }}">
                                                     {{ calendar.name }}
                                                 </div>
-                                                <span class="badge bg-primary ms-2">{{ calendar.event_count }}</span>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-primary">{{ calendar.event_count }}</span>
+                                                    {% if calendar.trend == 'up' %}
+                                                        <i class="fas fa-arrow-up text-success ms-2" title="En augmentation"></i>
+                                                    {% elif calendar.trend == 'down' %}
+                                                        <i class="fas fa-arrow-down text-danger ms-2" title="En diminution"></i>
+                                                    {% elif calendar.trend == 'stable' %}
+                                                        <i class="fas fa-equals text-muted ms-2" title="Stable"></i>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                             <div class="progress mt-1" style="height: 4px;">
                                                 <div class="progress-bar" role="progressbar" 

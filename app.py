@@ -103,8 +103,9 @@ class Calendar(db.Model):
     order = db.Column(db.Integer, default=0)  # Pour stocker calendar-order
     description = db.Column(db.Text)  # Pour stocker calendar-description
     last_modified = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    event_count = db.Column(db.Integer)  # Nouveau champ pour stocker le nombre d'événements
-    event_count_updated = db.Column(db.DateTime)  # Nouveau champ pour stocker la date de mise à jour du compteur
+    event_count = db.Column(db.Integer)  # Nombre d'événements actuel
+    previous_event_count = db.Column(db.Integer)  # Nombre d'événements précédent
+    event_count_updated = db.Column(db.DateTime)  # Date de mise à jour du compteur
 
     @property
     def display_color(self):
@@ -317,6 +318,9 @@ def get_events_count():
         for calendar in calendars:
             # Vérifier si nous devons mettre à jour le compteur
             if calendar.needs_event_count_update():
+                # Sauvegarder l'ancien compteur avant la mise à jour
+                calendar.previous_event_count = calendar.event_count or 0
+                
                 if calendar.calendar_source.type == 'google':
                     events = get_google_calendar_events(calendar, start_date, end_date)
                     event_count = len(events)
@@ -333,9 +337,20 @@ def get_events_count():
             else:
                 event_count = calendar.event_count or 0
 
+            # Calculer la tendance
+            trend = None
+            if calendar.previous_event_count is not None:
+                if event_count > calendar.previous_event_count:
+                    trend = 'up'
+                elif event_count < calendar.previous_event_count:
+                    trend = 'down'
+                else:
+                    trend = 'stable'
+
             calendar_info[calendar.id] = {
                 'name': calendar.name,
-                'event_count': event_count
+                'event_count': event_count,
+                'trend': trend
             }
         
         return jsonify(calendar_info)
@@ -1249,8 +1264,8 @@ def statistics():
             Calendar.active == True
         ).all()
 
-        # Calculer le nombre total d'événements
-        total_events = sum(calendar.event_count for calendar in active_calendars)
+        # Calculer le nombre total d'événements en gérant les valeurs None
+        total_events = sum(calendar.event_count or 0 for calendar in active_calendars)
 
         # Récupérer la dernière synchronisation
         last_sync = CalendarSource.query.filter_by(
