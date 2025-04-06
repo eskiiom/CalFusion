@@ -13,6 +13,27 @@
     background-color: var(--cf-navbar-bg);
     border-bottom: 1px solid var(--cf-card-border);
     padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card-header .btn-group {
+        width: 100%;
+        display: flex;
+    }
+
+    .card-header .btn {
+        flex: 1;
+    }
 }
 
 .calendar-list {
@@ -125,6 +146,7 @@
     display: flex;
     align-items: center;
     flex-grow: 1;
+    min-width: 0;
 }
 
 .calendar-icon {
@@ -133,22 +155,17 @@
     justify-content: center;
     width: 24px;
     margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .calendar-icon i {
     font-size: 16px;
 }
 
-.fab.fa-google {
-    color: #4285F4;
-}
-
-.fab.fa-apple {
-    color: #999999;
-}
-
-.far.fa-calendar {
-    color: #666666;
+.calendar-details {
+    flex-grow: 1;
+    min-width: 0;
+    margin-right: 1rem;
 }
 
 .calendar-name {
@@ -156,6 +173,9 @@
     margin-bottom: 2px;
     font-weight: 600;
     color: var(--cf-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .event-count {
@@ -163,8 +183,48 @@
     color: var(--cf-link-color);
 }
 
-.color-picker-wrapper {
+.calendar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin-left: auto;
+}
+
+@media (max-width: 576px) {
+    .calendar-item {
+        padding: 8px;
+        flex-wrap: wrap;
+    }
+
+    .calendar-info {
+        width: calc(100% - 40px);
+    }
+
+    .calendar-details {
+        margin-right: 0;
+    }
+
+    .calendar-actions {
+        width: 100%;
+        margin-left: 32px;
+        margin-top: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .calendar-name {
+        font-size: 0.95rem;
+    }
+
+    .event-count {
+        font-size: 0.85rem;
+    }
+
+    .drag-handle {
+        padding: 0 4px;
+    }
+}
+
+.color-picker-wrapper {
     display: flex;
     align-items: center;
 }
@@ -256,30 +316,18 @@
 }
 
 @media (max-width: 576px) {
-    .calendar-item {
-        padding: 8px;
-    }
-
-    .calendar-info {
-        width: 100%;
-    }
-
-    .calendar-name {
-        font-size: 0.95rem;
-    }
-
-    .event-count {
-        font-size: 0.85rem;
-    }
-
-    .tooltip-inner {
-        max-width: 200px;
-        font-size: 14px;
-    }
-
     .copy-url {
         font-size: 12px;
         padding: 6px;
+    }
+
+    .btn-group {
+        flex-wrap: nowrap;
+    }
+
+    .btn-group .btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
     }
 }
 
@@ -335,18 +383,18 @@
                                 </div>
                                 <div class="col">
                                     <div class="d-flex align-items-center">
-                                    <div class="calendar-icon">
-                                        {% if calendar.calendar_source.type == 'google' %}
-                                            <i class="fab fa-google"></i>
-                                        {% elif calendar.calendar_source.type == 'icloud' %}
-                                            <i class="fab fa-apple"></i>
-                                        {% else %}
-                                            <i class="far fa-calendar"></i>
-                                        {% endif %}
-                                    </div>
+                                        <div class="calendar-icon">
+                                            {% if calendar.calendar_source.type == 'google' %}
+                                                <i class="fab fa-google"></i>
+                                            {% elif calendar.calendar_source.type == 'icloud' %}
+                                                <i class="fab fa-apple"></i>
+                                            {% else %}
+                                                <i class="far fa-calendar"></i>
+                                            {% endif %}
+                                        </div>
                                         <div class="calendar-info">
                                             <div class="d-flex flex-column">
-                                    <span class="calendar-name">{{ calendar.name }}</span>
+                                                <span class="calendar-name">{{ calendar.name }}</span>
                                                 <div class="event-count small text-muted mt-1">
                                                     <div class="spinner-border spinner-border-sm text-muted" role="status">
                                                         <span class="visually-hidden">Chargement...</span>
@@ -359,8 +407,8 @@
                                 </div>
                                 <div class="col-auto">
                                     <input type="color" class="calendar-color-picker" 
-                                       value="{{ calendar.display_color }}" 
-                                       data-calendar-id="{{ calendar.id }}"
+                                           value="{{ calendar.display_color }}" 
+                                           data-calendar-id="{{ calendar.id }}"
                                            title="Changer la couleur">
                                 </div>
                             </div>

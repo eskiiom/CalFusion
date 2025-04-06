@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}Raccourcis clavier - CalFusion{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Raccourcis clavier</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Windows/Linux</th>
+                                    <th>macOS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Rafraîchir les calendriers</td>
+                                    <td><kbd>Ctrl</kbd> + <kbd>R</kbd></td>
+                                    <td><kbd>⌘</kbd> + <kbd>R</kbd></td>
+                                </tr>
+                                <tr>
+                                    <td>Basculer le thème (clair/sombre)</td>
+                                    <td><kbd>Ctrl</kbd> + <kbd>T</kbd></td>
+                                    <td><kbd>⌘</kbd> + <kbd>T</kbd></td>
+                                </tr>
+                                <tr>
+                                    <td>Accéder à la page des sources</td>
+                                    <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                                    <td><kbd>⌘</kbd> + <kbd>S</kbd></td>
+                                </tr>
+                                <tr>
+                                    <td>Se déconnecter</td>
+                                    <td><kbd>Ctrl</kbd> + <kbd>L</kbd></td>
+                                    <td><kbd>⌘</kbd> + <kbd>L</kbd></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+kbd {
+    background-color: var(--cf-card-bg);
+    border: 1px solid var(--cf-card-border);
+    border-radius: 3px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    color: var(--cf-text-color);
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0 0.1em;
+    padding: 0.2em 0.4em;
+}
+
+.table {
+    color: var(--cf-text-color);
+}
+
+.table thead th {
+    border-bottom-color: var(--cf-card-border);
+}
+
+.table td {
+    border-bottom-color: var(--cf-card-border);
+    vertical-align: middle;
+}
+
+@media (max-width: 576px) {
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    kbd {
+        font-size: 0.8em;
+        padding: 0.15em 0.3em;
+    }
+}
+</style>
+{% endblock %} 
