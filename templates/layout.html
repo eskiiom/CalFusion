@@ -159,6 +159,17 @@
                         <span class="d-none d-sm-inline">Thème</span>
                     </button>
                 </li>
+                <li class="nav-item me-3">
+                    <button class="nav-link" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                            title="<div class='text-start'><strong>Raccourcis clavier :</strong><br>
+                            Ctrl+R : Rafraîchir les calendriers<br>
+                            Ctrl+T : Basculer le thème<br>
+                            Ctrl+S : Page des sources<br>
+                            Ctrl+L : Se déconnecter</div>">
+                        <i class="fas fa-keyboard"></i>
+                        <span class="d-none d-sm-inline">Raccourcis</span>
+                    </button>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout') }}">
                         <i class="fas fa-sign-out-alt"></i> Se déconnecter
@@ -214,6 +225,42 @@
             function updateThemeIcon(theme) {
                 themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
             }
+
+            // Gestion des raccourcis clavier
+            document.addEventListener('keydown', function(e) {
+                // Vérifier si Ctrl est pressé (ou Cmd sur Mac)
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key.toLowerCase()) {
+                        case 'r':
+                            e.preventDefault();
+                            // Rafraîchir les calendriers
+                            if (window.location.pathname === '/') {
+                                document.querySelectorAll('.calendar-item').forEach(item => {
+                                    const refreshBtn = item.querySelector('.refresh-calendar');
+                                    if (refreshBtn) refreshBtn.click();
+                                });
+                            }
+                            break;
+                        case 't':
+                            e.preventDefault();
+                            // Basculer le thème
+                            themeToggle.click();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            // Aller à la page des sources
+                            const sourcesLink = document.querySelector('a[href="{{ url_for("manage_sources") }}"]');
+                            if (sourcesLink) sourcesLink.click();
+                            break;
+                        case 'l':
+                            e.preventDefault();
+                            // Se déconnecter
+                            const logoutLink = document.querySelector('a[href="{{ url_for("logout") }}"]');
+                            if (logoutLink) logoutLink.click();
+                            break;
+                    }
+                }
+            });
         });
     </script>
     {% block scripts %}{% endblock %}

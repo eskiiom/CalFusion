@@ -9,6 +9,7 @@
   - Indicateurs de chargement
   - Tooltips informatifs
   - Mode sombre
+  - Raccourcis clavier
 - Gestion des calendriers
   - Support Google Calendar
   - Support iCloud Calendar
@@ -36,7 +37,6 @@
   - [ ] Documentation technique
 - [ ] Améliorations de l'interface
   - [ ] Thèmes personnalisables
-  - [ ] Raccourcis clavier
   - [ ] Statistiques d'utilisation
 
 ## Moyen terme (3-6 mois)

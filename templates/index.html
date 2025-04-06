@@ -232,34 +232,34 @@
                     <button type="button" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-html="true" title="<ul class='text-start mb-0'><li>Activez ou désactivez les calendriers en utilisant les cases à cocher</li><li>Personnalisez les couleurs avec le sélecteur de couleur</li><li>Les couleurs des calendriers iCloud sont récupérées depuis l'API Apple</li><li>Le nombre d'événements indiqué correspond aux 30 prochains jours</li></ul>">
                         <i class="fas fa-info-circle"></i>
                     </button>
-                </div>
+                    </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for calendar in calendars %}
                         <div class="list-group-item calendar-item" data-calendar-id="{{ calendar.id }}">
                             <div class="row align-items-center w-100">
                                 <div class="col-auto">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input calendar-toggle" 
-                                               id="calendar-{{ calendar.id }}" 
-                                               data-calendar-id="{{ calendar.id }}"
-                                               {% if calendar.active %}checked{% endif %}>
-                                    </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input calendar-toggle" 
+                                           id="calendar-{{ calendar.id }}" 
+                                           data-calendar-id="{{ calendar.id }}"
+                                           {% if calendar.active %}checked{% endif %}>
+                                </div>
                                 </div>
                                 <div class="col">
                                     <div class="d-flex align-items-center">
-                                        <div class="calendar-icon">
-                                            {% if calendar.calendar_source.type == 'google' %}
-                                                <i class="fab fa-google"></i>
-                                            {% elif calendar.calendar_source.type == 'icloud' %}
-                                                <i class="fab fa-apple"></i>
-                                            {% else %}
-                                                <i class="far fa-calendar"></i>
-                                            {% endif %}
-                                        </div>
+                                    <div class="calendar-icon">
+                                        {% if calendar.calendar_source.type == 'google' %}
+                                            <i class="fab fa-google"></i>
+                                        {% elif calendar.calendar_source.type == 'icloud' %}
+                                            <i class="fab fa-apple"></i>
+                                        {% else %}
+                                            <i class="far fa-calendar"></i>
+                                        {% endif %}
+                                    </div>
                                         <div class="calendar-info">
                                             <div class="d-flex flex-column">
-                                                <span class="calendar-name">{{ calendar.name }}</span>
+                                    <span class="calendar-name">{{ calendar.name }}</span>
                                                 <div class="event-count small text-muted mt-1">
                                                     <div class="spinner-border spinner-border-sm text-muted" role="status">
                                                         <span class="visually-hidden">Chargement...</span>
@@ -272,8 +272,8 @@
                                 </div>
                                 <div class="col-auto">
                                     <input type="color" class="calendar-color-picker" 
-                                           value="{{ calendar.display_color }}"
-                                           data-calendar-id="{{ calendar.id }}"
+                                       value="{{ calendar.display_color }}" 
+                                       data-calendar-id="{{ calendar.id }}"
                                            title="Changer la couleur">
                                 </div>
                             </div>
@@ -596,8 +596,8 @@ document.getElementById('timezone').addEventListener('input', function(e) {
                 const option = document.createElement('option');
                 option.value = tz;
                 datalist.appendChild(option);
-            });
         });
+    });
 });
 </script>
 {% endblock %} 

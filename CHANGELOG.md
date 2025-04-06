@@ -157,3 +157,18 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Import du module timezone dans les templates
 - Optimisation de la gestion des fuseaux horaires dans les templates Jinja2
 - Correction de la génération des URLs pour forcer HTTPS 
+
+## [1.2.3] - 2024-04-04
+
+### Ajouté
+- Raccourcis clavier pour les actions principales :
+  - Ctrl+R : Rafraîchir les calendriers
+  - Ctrl+T : Basculer le thème (clair/sombre)
+  - Ctrl+S : Accéder à la page des sources
+  - Ctrl+L : Se déconnecter
+- Bouton d'aide pour les raccourcis clavier dans la barre de navigation
+- Support des raccourcis avec la touche Cmd sur macOS
+
+### Modifié
+- Amélioration de l'accessibilité avec des raccourcis clavier
+- Optimisation de l'interface utilisateur pour les actions rapides 
