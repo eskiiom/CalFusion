@@ -2,7 +2,7 @@
 
 ## Documentation
 
-La documentation complète avec captures d'écran est disponible sur [https://eskiiom.github.io/calfusion/](https://eskiiom.github.io/calfusion/)
+La documentation complète avec captures d'écran est disponible sur [https://eskiiom.github.io/CalFusion/](https://eskiiom.github.io/CalFusion/)
 
 Vous y trouverez :
 - Guide d'installation et de configuration

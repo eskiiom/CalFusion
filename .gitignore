@@ -69,10 +69,8 @@ docker-compose.yml
 .dockerignore
 
 # Documentation
-docs/
-*.md
-!README.md
-!CHANGELOG.md
-!ROADMAP.md
+# Autoriser le dossier docs pour GitHub Pages
+!docs/
+!docs/**
 DEPLOYMENT.md
 LICENSE 
