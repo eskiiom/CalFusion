@@ -18,6 +18,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -29,7 +30,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -38,7 +38,6 @@ wheels/
 venv/
 ENV/
 env/
-.env/
 
 # IDE
 .idea/
@@ -52,4 +51,28 @@ env/
 logs/
 
 # Generated files
-static/combined_calendar.ics 
+static/combined_calendar.ics
+
+# Tests
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
+!CHANGELOG.md
+!ROADMAP.md
+DEPLOYMENT.md
+LICENSE 
