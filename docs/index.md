@@ -13,21 +13,28 @@
 ![Ajout de calendriers](./images/add-calendar.png)
 
 #### Google Calendar
+![Configuration iCloud](./images/gmail-setup.png)
 1. Cliquez sur "Ajouter un calendrier Google"
 2. Sélectionnez les calendriers à synchroniser
 3. Les calendriers apparaîtront dans votre liste
 
 #### iCloud Calendar
-![Configuration iCloud](./images/icloud-setup.png)
 
 1. Cliquez sur "Ajouter un calendrier iCloud"
-2. Entrez vos identifiants iCloud
+2. Entrez vos identifiants iCloud (mot de passe pour application)
 3. Sélectionnez les calendriers à synchroniser
 
 ## Utilisation quotidienne
 
 ### Page d'accueil
 ![Interface principale](./images/main-interface.png)
+
+1. Liste des calendriers
+2. Options de synchronisation
+3. URL du calendrier combiné
+
+### Page de statistiques
+![Statistiques](./images/statistiques.png)
 
 1. Liste des calendriers
 2. Options de synchronisation
