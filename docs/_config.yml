@@ -1,0 +1,22 @@
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme
+
+title: CalFusion
+description: Documentation utilisateur de CalFusion
+show_downloads: true
+google_analytics:
+theme: jekyll-theme-cayman
+
+# Personnalisation du thème
+colors:
+  header: "#159957"
+  gradient_left: "#155799"
+  gradient_right: "#159957"
+
+# Navigation
+nav:
+  - Installation: "#installation-et-configuration"
+  - Utilisation: "#utilisation-quotidienne"
+  - Dépannage: "#dépannage"
+  - Raccourcis: "#raccourcis-clavier" 
