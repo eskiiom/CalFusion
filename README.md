@@ -1,5 +1,15 @@
 # CalFusion
 
+## Documentation
+
+La documentation complète avec captures d'écran est disponible sur [https://eskiiom.github.io/calfusion/](https://eskiiom.github.io/calfusion/)
+
+Vous y trouverez :
+- Guide d'installation et de configuration
+- Tutoriels d'utilisation avec captures d'écran
+- Guide de dépannage
+- Liste des raccourcis clavier
+
 ## Fonctionnalités
 
 - **Gestion unifiée des calendriers**
@@ -336,3 +346,122 @@ services:
     environment:
       - FLASK_ENV=development
 ```
+
+## Dépannage
+
+### Problèmes d'authentification Google
+
+1. **Erreur de refresh token**
+   Si vous obtenez l'erreur : "The credentials do not contain the necessary fields need to refresh the access token", suivez ces étapes :
+   ```bash
+   1. Déconnectez-vous de l'application
+   2. Allez sur https://myaccount.google.com/permissions
+   3. Trouvez l'application CalFusion
+   4. Cliquez sur "Révoquer l'accès"
+   5. Retournez sur l'application
+   6. Reconnectez-vous avec Google
+   ```
+   Cette procédure permet d'obtenir un nouveau refresh token avec toutes les permissions nécessaires.
+
+2. **Erreur 500 lors de l'authentification**
+   - Vérifiez que les variables d'environnement sont correctement configurées :
+     ```
+     GOOGLE_CLIENT_ID=votre_client_id
+     GOOGLE_CLIENT_SECRET=votre_client_secret
+     REDIRECT_URI=http://votre-domaine:5000/oauth2callback
+     ```
+   - Assurez-vous que l'URI de redirection correspond exactement à celle configurée dans la console Google Cloud
+
+### Problèmes de synchronisation
+
+1. **Les calendriers ne se rafraîchissent pas**
+   - Vérifiez les logs de l'application
+   - Assurez-vous que les credentials sont à jour
+   - Vérifiez que la source est connectée dans la page Sources
+
+2. **Calendriers iCloud non visibles**
+   - Vérifiez que le mot de passe d'application est correct
+   - Assurez-vous que l'URL CalDAV est accessible
+   - Vérifiez les permissions des calendriers dans les paramètres iCloud
+
+### Problèmes de base de données
+
+1. **Erreurs SQLite**
+   ```bash
+   # Sauvegardez d'abord la base de données
+   cp instance/calendars.db instance/calendars.db.backup
+   
+   # Réinitialisez la base de données
+   rm instance/calendars.db
+   flask db upgrade
+   ```
+
+2. **Problèmes de migration**
+   - En cas d'erreur lors d'une migration :
+     ```bash
+     flask db stamp head
+     flask db migrate
+     flask db upgrade
+     ```
+
+### Problèmes de déploiement
+
+1. **Erreurs avec Docker**
+   ```bash
+   # Reconstruire l'image
+   docker-compose build --no-cache
+   
+   # Vérifier les logs
+   docker-compose logs -f
+   ```
+
+2. **Problèmes de certificats SSL**
+   - Vérifiez la configuration Nginx
+   - Renouvelez les certificats Let's Encrypt :
+     ```bash
+     sudo certbot renew
+     ```
+
+### Maintenance
+
+1. **Nettoyage périodique**
+   ```bash
+   # Supprimer les fichiers temporaires
+   rm -rf instance/sessions/*
+   rm static/combined_calendar.ics
+   ```
+
+2. **Sauvegarde**
+   ```bash
+   # Sauvegarder la base de données
+   cp instance/calendars.db /chemin/vers/backup/calendars_$(date +%Y%m%d).db
+   ```
+
+### Logs et Débogage
+
+1. **Activer les logs détaillés**
+   ```python
+   # Dans .env
+   FLASK_ENV=development
+   FLASK_DEBUG=1
+   ```
+
+2. **Consulter les logs**
+   ```bash
+   # Logs de l'application
+   tail -f logs/app.log
+   
+   # Logs Docker
+   docker-compose logs -f
+   ```
+
+### Contact et Support
+
+Si vous rencontrez un problème non résolu :
+1. Consultez les [Issues GitHub](https://github.com/votre-username/calfusion/issues)
+2. Créez une nouvelle issue avec :
+   - Description détaillée du problème
+   - Logs pertinents
+   - Étapes pour reproduire le problème
+   - Environnement (OS, version Python, etc.)
+

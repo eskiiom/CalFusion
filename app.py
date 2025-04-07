@@ -236,15 +236,23 @@ def oauth2callback():
         app.logger.info(f"Utilisateur connecté: {user.email}")
         app.logger.info(f"Authentifié: {current_user.is_authenticated}")
         
-        # Stockage des informations d'identification
+        # S'assurer que toutes les informations d'identification nécessaires sont présentes
         creds_info = {
             'token': credentials.token,
             'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
+            'token_uri': credentials.token_uri or 'https://oauth2.googleapis.com/token',
             'client_id': os.getenv("GOOGLE_CLIENT_ID"),
             'client_secret': os.getenv("GOOGLE_CLIENT_SECRET"),
             'scopes': credentials.scopes
         }
+
+        # Vérifier que nous avons bien un refresh_token
+        if not creds_info['refresh_token']:
+            app.logger.error("Pas de refresh_token reçu")
+            flash('Erreur lors de l\'authentification: pas de refresh token', 'error')
+            return redirect(url_for('login'))
+
+        app.logger.info("Credentials complets créés avec succès")
         
         # Créer ou mettre à jour la source Google
         google_source = CalendarSource.query.filter_by(
@@ -822,34 +830,62 @@ def refresh_source(source_id):
         
         if source.type == 'google':
             # Récupérer les nouveaux calendriers Google
-            creds_info = json.loads(source.credentials)
-            credentials = Credentials(
-                token=creds_info['token'],
-                refresh_token=creds_info['refresh_token'],
-                token_uri=creds_info['token_uri'],
-                client_id=creds_info['client_id'],
-                client_secret=creds_info['client_secret'],
-                scopes=creds_info['scopes']
-            )
-            
-            calendar_service = build('calendar', 'v3', credentials=credentials)
-            calendar_list = calendar_service.calendarList().list().execute()
-            
-            for calendar in calendar_list.get('items', []):
-                existing_calendar = Calendar.query.filter_by(
-                    calendar_id=calendar['id'],
-                    source_id=source.id
-                ).first()
+            try:
+                creds_info = json.loads(source.credentials)
+                app.logger.info(f"Credentials trouvés pour la source {source_id}")
                 
-                if not existing_calendar:
-                    new_calendar = Calendar(
-                        name=calendar['summary'],
+                # Vérifier que toutes les informations nécessaires sont présentes
+                required_fields = ['token', 'refresh_token', 'token_uri', 'client_id', 'client_secret', 'scopes']
+                missing_fields = [field for field in required_fields if field not in creds_info]
+                
+                if missing_fields:
+                    app.logger.error(f"Champs manquants dans les credentials: {missing_fields}")
+                    # Récupérer les informations manquantes depuis les variables d'environnement
+                    if 'client_id' not in creds_info:
+                        creds_info['client_id'] = os.getenv('GOOGLE_CLIENT_ID')
+                    if 'client_secret' not in creds_info:
+                        creds_info['client_secret'] = os.getenv('GOOGLE_CLIENT_SECRET')
+                    if 'token_uri' not in creds_info:
+                        creds_info['token_uri'] = 'https://oauth2.googleapis.com/token'
+                    
+                    # Mettre à jour les credentials dans la base de données
+                    source.credentials = json.dumps(creds_info)
+                    db.session.commit()
+                
+                credentials = Credentials(
+                    token=creds_info['token'],
+                    refresh_token=creds_info['refresh_token'],
+                    token_uri=creds_info['token_uri'],
+                    client_id=creds_info['client_id'],
+                    client_secret=creds_info['client_secret'],
+                    scopes=creds_info['scopes']
+                )
+                
+                calendar_service = build('calendar', 'v3', credentials=credentials)
+                calendar_list = calendar_service.calendarList().list().execute()
+                
+                for calendar in calendar_list.get('items', []):
+                    existing_calendar = Calendar.query.filter_by(
                         calendar_id=calendar['id'],
-                        color=calendar.get('backgroundColor', '#4285f4'),
-                        user_id=current_user.id,
                         source_id=source.id
-                    )
-                    db.session.add(new_calendar)
+                    ).first()
+                    
+                    if not existing_calendar:
+                        new_calendar = Calendar(
+                            name=calendar['summary'],
+                            calendar_id=calendar['id'],
+                            color=calendar.get('backgroundColor', '#4285f4'),
+                            user_id=current_user.id,
+                            source_id=source.id
+                        )
+                        db.session.add(new_calendar)
+                
+            except json.JSONDecodeError as e:
+                app.logger.error(f"Erreur de décodage JSON pour la source {source_id}: {str(e)}")
+                return jsonify({'success': False, 'error': 'Erreur de décodage des credentials'})
+            except Exception as e:
+                app.logger.error(f"Erreur lors du rafraîchissement des calendriers Google: {str(e)}")
+                return jsonify({'success': False, 'error': str(e)})
             
         elif source.type == 'icloud':
             # Récupérer les nouveaux calendriers iCloud
@@ -885,14 +921,6 @@ def refresh_source(source_id):
                         source_id=source.id
                     )
                     db.session.add(new_calendar)
-        
-        elif source.type == 'ics':
-            # Vérifier que l'URL du calendrier ICS est toujours valide
-            response = requests.get(source.url)
-            if response.status_code == 200:
-                source.is_connected = True
-            else:
-                source.is_connected = False
         
         source.last_sync = datetime.now(timezone.utc)
         db.session.commit()
