@@ -34,7 +34,7 @@
 3. URL du calendrier combiné
 
 ### Page de statistiques
-![Statistiques](./images/statistiques.png)
+![Statistiques](./images/Statistiques.png)
 
 1. Liste des calendriers
 2. Options de synchronisation
