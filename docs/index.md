@@ -47,15 +47,6 @@
 2. Durée de synchronisation
 3. Préférences d'affichage
 
-## Dépannage
-
-### Problèmes courants
-![Page de dépannage](./images/troubleshooting.png)
-
-1. Erreurs de synchronisation
-2. Problèmes d'authentification
-3. Solutions rapides
-
 ## Raccourcis clavier
 ![Raccourcis](./images/shortcuts.png)
 
