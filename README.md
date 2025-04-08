@@ -283,13 +283,16 @@ services:
       - "5000:5000"
     environment:
       - FLASK_APP=app.py
-      - FLASK_ENV=production
+      - FLASK_ENV=development
       # Variables à configurer
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SECRET_KEY=${SECRET_KEY}
       - APP_BASE_URL=${APP_BASE_URL}
+      - REDIRECT_URI=${REDIRECT_URI}
+      - ICLOUD_CALDAV_URL=${ICLOUD_CALDAV_URL}
     volumes:
+      - .:/app  # Pour le hot-reload
       - ./instance:/app/instance  # Base de données
       - ./static:/app/static      # Fichiers statiques
     restart: unless-stopped
@@ -297,7 +300,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 3 
 ```
 
 ### Utilisation
