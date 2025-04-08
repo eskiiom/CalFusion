@@ -458,7 +458,7 @@ services:
 ### Contact et Support
 
 Si vous rencontrez un problème non résolu :
-1. Consultez les [Issues GitHub](https://github.com/votre-username/calfusion/issues)
+1. Consultez les [Issues GitHub](https://github.com/eskiiom/calfusion/issues)
 2. Créez une nouvelle issue avec :
    - Description détaillée du problème
    - Logs pertinents
