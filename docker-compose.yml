@@ -13,6 +13,7 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SECRET_KEY=${SECRET_KEY}
       - APP_BASE_URL=${APP_BASE_URL}
+      - REDIRECT_URI=${REDIRECT_URI}
       - ICLOUD_CALDAV_URL=${ICLOUD_CALDAV_URL}
     volumes:
       - .:/app  # Pour le hot-reload
