@@ -444,8 +444,11 @@ def add_icloud_calendar():
             calendars = principal.calendars()
             app.logger.info(f"Nombre de calendriers trouvés: {len(calendars)}")
             
-            # Stockage des informations d'identification encodées
-            credentials = base64.b64encode(f"{username}:{password}".encode()).decode()
+            # Stockage des informations d'identification en JSON
+            credentials = json.dumps({
+                'username': username,
+                'password': password
+            })
             
             # Créer ou mettre à jour la source iCloud
             icloud_source = CalendarSource.query.filter_by(
@@ -610,26 +613,19 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
         
         # Ajout de logs pour déboguer
         app.logger.info(f"Credentials avant décodage: {source.credentials}")
-        app.logger.info(f"Longueur des credentials: {len(source.credentials)}")
         
         # Décodage des informations d'identification
         try:
-            # Essayer d'abord de décoder comme JSON
-            try:
-                creds_info = json.loads(source.credentials)
-                app.logger.info("Décodage JSON réussi")
-                if 'username' in creds_info and 'password' in creds_info:
-                    username = creds_info['username']
-                    password = creds_info['password']
-                else:
-                    raise ValueError("Format JSON invalide")
-            except json.JSONDecodeError:
-                app.logger.info("Tentative de décodage base64")
-                # Si ce n'est pas du JSON, essayer le décodage base64
-                credentials = base64.b64decode(source.credentials).decode()
-                username, password = credentials.split(':')
+            # Essayer de décoder comme JSON
+            creds_info = json.loads(source.credentials)
+            app.logger.info("Décodage JSON réussi")
             
-            app.logger.info(f"Username extrait: {username}")
+            if 'username' in creds_info and 'password' in creds_info:
+                username = creds_info['username']
+                password = creds_info['password']
+                app.logger.info(f"Username extrait: {username}")
+            else:
+                raise ValueError("Format JSON invalide: champs username/password manquants")
             
             # Connexion au calendrier
             client = caldav.DAVClient(
@@ -647,46 +643,13 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
             
             return events
             
-        except Exception as decode_error:
-            app.logger.error(f"Erreur lors du décodage des credentials: {str(decode_error)}")
-            # Tentative de nettoyage des credentials
-            try:
-                cleaned_credentials = source.credentials.strip()
-                app.logger.info(f"Credentials nettoyés: {cleaned_credentials}")
-                
-                # Essayer de décoder comme JSON d'abord
-                try:
-                    creds_info = json.loads(cleaned_credentials)
-                    if 'username' in creds_info and 'password' in creds_info:
-                        username = creds_info['username']
-                        password = creds_info['password']
-                    else:
-                        raise ValueError("Format JSON invalide")
-                except json.JSONDecodeError:
-                    # Si ce n'est pas du JSON, essayer le décodage base64
-                    credentials = base64.b64decode(cleaned_credentials).decode()
-                    username, password = credentials.split(':')
-                
-                # Connexion au calendrier avec les credentials nettoyés
-                client = caldav.DAVClient(
-                    url=source.url,
-                    username=username,
-                    password=password
-                )
-                cal = client.calendar(url=f"{source.url}{calendar.calendar_id}")
-                
-                # Récupération des événements
-                events = cal.date_search(
-                    start=start_date,
-                    end=end_date
-                )
-                
-                return events
-                
-            except Exception as e:
-                app.logger.error(f"Échec de la tentative de nettoyage: {str(e)}")
-                return []
-                
+        except json.JSONDecodeError as e:
+            app.logger.error(f"Erreur de décodage JSON: {str(e)}")
+            return []
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la récupération des événements: {str(e)}")
+            return []
+            
     except Exception as e:
         app.logger.error(f"Erreur lors de la récupération des événements iCloud: {str(e)}")
         return []
