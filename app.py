@@ -1432,22 +1432,37 @@ def add_ics_calendar():
     if request.method == 'POST':
         try:
             url = request.form['url']
+            app.logger.info(f"URL reçue: {url}")
             
             # Convertir webcal:// en https://
             if url.startswith('webcal://'):
+                app.logger.info("Conversion de webcal:// en https://")
                 url = 'https://' + url[9:]
+                app.logger.info(f"URL convertie: {url}")
             
             app.logger.info(f"Tentative d'ajout du calendrier ICS: {url}")
             
             # Vérifier que l'URL est accessible
-            response = requests.get(url)
-            response.raise_for_status()
+            app.logger.info("Envoi de la requête GET vers l'URL")
+            try:
+                response = requests.get(url, timeout=10)  # Ajout d'un timeout de 10 secondes
+                app.logger.info(f"Code de réponse: {response.status_code}")
+                app.logger.info(f"Headers de réponse: {response.headers}")
+                response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                app.logger.error(f"Erreur lors de la requête HTTP: {str(e)}")
+                if hasattr(e.response, 'text'):
+                    app.logger.error(f"Contenu de la réponse: {e.response.text}")
+                raise
             
             # Vérifier que c'est un fichier ICS valide
             try:
+                app.logger.info("Tentative de parsing du contenu ICS")
                 calendar = ICalendar.from_ical(response.text)
+                app.logger.info("Parsing ICS réussi")
             except Exception as e:
                 app.logger.error(f"Format ICS invalide: {str(e)}")
+                app.logger.error(f"Contenu reçu: {response.text[:500]}...")  # Log des 500 premiers caractères
                 flash('Le fichier n\'est pas un calendrier ICS valide.', 'error')
                 return redirect(url_for('index'))
             
@@ -1464,6 +1479,7 @@ def add_ics_calendar():
                 for component in calendar.walk():
                     if component.name == "VCALENDAR":
                         calendar_name = component.get('x-wr-calname', "Calendrier ICS")
+                        app.logger.info(f"Nom du calendrier trouvé: {calendar_name}")
                         break
                 
                 ics_source = CalendarSource(
@@ -1476,6 +1492,7 @@ def add_ics_calendar():
                 )
                 db.session.add(ics_source)
                 db.session.flush()
+                app.logger.info(f"Nouvelle source ICS créée avec l'ID: {ics_source.id}")
                 
                 # Créer le calendrier
                 new_calendar = Calendar(
@@ -1487,13 +1504,16 @@ def add_ics_calendar():
                     active=True
                 )
                 db.session.add(new_calendar)
+                app.logger.info("Nouveau calendrier créé")
             else:
                 # Mettre à jour la source existante
+                app.logger.info(f"Mise à jour de la source existante ID: {ics_source.id}")
                 ics_source.is_connected = True
                 ics_source.last_sync = datetime.now(timezone.utc)
                 Calendar.query.filter_by(source_id=ics_source.id).update({'active': True})
             
             db.session.commit()
+            app.logger.info("Changements commités avec succès")
             flash('Calendrier ICS ajouté avec succès!', 'success')
             return redirect(url_for('index'))
             
@@ -1503,6 +1523,8 @@ def add_ics_calendar():
             return redirect(url_for('index'))
         except Exception as e:
             app.logger.error(f"Erreur lors de l'ajout du calendrier ICS: {str(e)}")
+            app.logger.error(f"Type d'erreur: {type(e)}")
+            app.logger.error(f"Arguments de l'erreur: {e.args}")
             flash(f'Erreur lors de l\'ajout du calendrier: {str(e)}', 'error')
             return redirect(url_for('index'))
 
