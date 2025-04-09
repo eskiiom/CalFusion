@@ -656,45 +656,86 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
             continue
             
         event_counts[calendar.id] = 0  # Initialiser le compteur pour ce calendrier
+        app.logger.info(f"Traitement du calendrier {calendar.name} (ID: {calendar.id})")
             
-        if calendar.source_id == 1:  # Google Calendar
-            events = get_google_calendar_events(calendar, start_date, end_date)
-            for event in events:
-                cal_event = Event()
-                cal_event.add('summary', f"[{calendar.name}] {event.get('summary', 'No Title')}")
-                cal_event.add('description', event.get('description', ''))
+        try:
+            if calendar.calendar_source.type == 'google':  # Google Calendar
+                events = get_google_calendar_events(calendar, start_date, end_date)
+                for event in events:
+                    cal_event = Event()
+                    cal_event.add('summary', f"[{calendar.name}] {event.get('summary', 'No Title')}")
+                    cal_event.add('description', event.get('description', ''))
+                    
+                    start = event['start'].get('dateTime', event['start'].get('date'))
+                    if isinstance(start, str):
+                        start = parser.parse(start)
+                    cal_event.add('dtstart', start)
+                    
+                    end = event['end'].get('dateTime', event['end'].get('date'))
+                    if isinstance(end, str):
+                        end = parser.parse(end)
+                    cal_event.add('dtend', end)
+                    
+                    cal_event.add('color', calendar.color)
+                    combined_cal.add_component(cal_event)
+                    event_counts[calendar.id] += 1
+                    
+            elif calendar.calendar_source.type == 'icloud':  # iCloud Calendar
+                app.logger.info(f"Récupération des événements iCloud pour {calendar.name}")
+                source = calendar.calendar_source
                 
-                start = event['start'].get('dateTime', event['start'].get('date'))
-                if isinstance(start, str):
-                    start = parser.parse(start)
-                cal_event.add('dtstart', start)
+                # Vérification des credentials avant l'appel
+                if not source or not source.credentials:
+                    app.logger.error(f"Pas de credentials pour le calendrier {calendar.name}")
+                    continue
                 
-                end = event['end'].get('dateTime', event['end'].get('date'))
-                if isinstance(end, str):
-                    end = parser.parse(end)
-                cal_event.add('dtend', end)
+                # Ajout du padding si nécessaire
+                credentials = source.credentials
+                padding = len(credentials) % 4
+                if padding:
+                    credentials += '=' * (4 - padding)
                 
-                cal_event.add('color', calendar.color)
-                combined_cal.add_component(cal_event)
-                event_counts[calendar.id] += 1
-                
-        elif calendar.source_id == 2:  # iCloud Calendar
-            events = get_icloud_calendar_events(calendar, start_date, end_date)
-            for event in events:
-                vevent = event.vobject_instance.vevent
-                cal_event = Event()
-                
-                # Copie des propriétés de l'événement
-                cal_event.add('summary', f"[{calendar.name}] {str(vevent.summary.value)}")
-                if hasattr(vevent, 'description'):
-                    cal_event.add('description', str(vevent.description.value))
-                
-                cal_event.add('dtstart', vevent.dtstart.value)
-                cal_event.add('dtend', vevent.dtend.value)
-                cal_event.add('color', calendar.color)
-                
-                combined_cal.add_component(cal_event)
-                event_counts[calendar.id] += 1
+                try:
+                    decoded_credentials = base64.b64decode(credentials).decode()
+                    username, password = decoded_credentials.split(':')
+                    
+                    # Connexion au calendrier
+                    client = caldav.DAVClient(
+                        url=source.url,
+                        username=username,
+                        password=password
+                    )
+                    cal = client.calendar(url=f"{source.url}{calendar.calendar_id}")
+                    
+                    # Récupération des événements
+                    events = cal.date_search(
+                        start=start_date if start_date else user_timezone_now(calendar.user),
+                        end=end_date if end_date else (start_date if start_date else user_timezone_now(calendar.user)) + timedelta(days=calendar.user.sync_days)
+                    )
+                    
+                    for event in events:
+                        vevent = event.vobject_instance.vevent
+                        cal_event = Event()
+                        
+                        # Copie des propriétés de l'événement
+                        cal_event.add('summary', f"[{calendar.name}] {str(vevent.summary.value)}")
+                        if hasattr(vevent, 'description'):
+                            cal_event.add('description', str(vevent.description.value))
+                        
+                        cal_event.add('dtstart', vevent.dtstart.value)
+                        cal_event.add('dtend', vevent.dtend.value)
+                        cal_event.add('color', calendar.color)
+                        
+                        combined_cal.add_component(cal_event)
+                        event_counts[calendar.id] += 1
+                        
+                except Exception as e:
+                    app.logger.error(f"Erreur lors de la récupération des événements iCloud pour {calendar.name}: {str(e)}")
+                    continue
+                    
+        except Exception as e:
+            app.logger.error(f"Erreur lors du traitement du calendrier {calendar.name}: {str(e)}")
+            continue
     
     return combined_cal, event_counts
 
