@@ -1422,6 +1422,90 @@ def shortcuts():
     """Affiche la page des raccourcis clavier."""
     return render_template('shortcuts.html')
 
+@app.route('/add_ics_calendar', methods=['GET', 'POST'])
+@login_required
+def add_ics_calendar():
+    """Ajoute un calendrier ICS via URL."""
+    if request.method == 'GET':
+        return render_template('add_ics.html')
+        
+    if request.method == 'POST':
+        try:
+            url = request.form['url']
+            
+            # Convertir webcal:// en https://
+            if url.startswith('webcal://'):
+                url = 'https://' + url[9:]
+            
+            app.logger.info(f"Tentative d'ajout du calendrier ICS: {url}")
+            
+            # Vérifier que l'URL est accessible
+            response = requests.get(url)
+            response.raise_for_status()
+            
+            # Vérifier que c'est un fichier ICS valide
+            try:
+                calendar = ICalendar.from_ical(response.text)
+            except Exception as e:
+                app.logger.error(f"Format ICS invalide: {str(e)}")
+                flash('Le fichier n\'est pas un calendrier ICS valide.', 'error')
+                return redirect(url_for('index'))
+            
+            # Créer ou mettre à jour la source ICS
+            ics_source = CalendarSource.query.filter_by(
+                user_id=current_user.id,
+                type='ics',
+                url=url
+            ).first()
+            
+            if not ics_source:
+                # Essayer de trouver un nom pour le calendrier
+                calendar_name = "Calendrier ICS"
+                for component in calendar.walk():
+                    if component.name == "VCALENDAR":
+                        calendar_name = component.get('x-wr-calname', "Calendrier ICS")
+                        break
+                
+                ics_source = CalendarSource(
+                    name=calendar_name,
+                    type='ics',
+                    user_id=current_user.id,
+                    url=url,
+                    is_connected=True,
+                    last_sync=datetime.now(timezone.utc)
+                )
+                db.session.add(ics_source)
+                db.session.flush()
+                
+                # Créer le calendrier
+                new_calendar = Calendar(
+                    name=calendar_name,
+                    calendar_id=url,  # Utiliser l'URL comme ID
+                    color='#FF9500',  # Couleur par défaut
+                    user_id=current_user.id,
+                    source_id=ics_source.id,
+                    active=True
+                )
+                db.session.add(new_calendar)
+            else:
+                # Mettre à jour la source existante
+                ics_source.is_connected = True
+                ics_source.last_sync = datetime.now(timezone.utc)
+                Calendar.query.filter_by(source_id=ics_source.id).update({'active': True})
+            
+            db.session.commit()
+            flash('Calendrier ICS ajouté avec succès!', 'success')
+            return redirect(url_for('index'))
+            
+        except requests.exceptions.RequestException as e:
+            app.logger.error(f"Erreur lors de l'accès à l'URL: {str(e)}")
+            flash('Impossible d\'accéder à l\'URL du calendrier.', 'error')
+            return redirect(url_for('index'))
+        except Exception as e:
+            app.logger.error(f"Erreur lors de l'ajout du calendrier ICS: {str(e)}")
+            flash(f'Erreur lors de l\'ajout du calendrier: {str(e)}', 'error')
+            return redirect(url_for('index'))
+
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
     port = int(os.getenv('FLASK_PORT', 5000))
