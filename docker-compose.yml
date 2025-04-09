@@ -17,8 +17,9 @@ services:
       - ICLOUD_CALDAV_URL=${ICLOUD_CALDAV_URL}
     volumes:
       - .:/app  # Pour le hot-reload
-      - ./instance:/app/instance  # Base de données
+      - ./instance:/app/instance:rw  # Base de données avec permissions en lecture/écriture
       - ./static:/app/static      # Fichiers statiques
+    user: "1000:1000"  # Utiliser l'UID et GID de l'utilisateur hôte
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
