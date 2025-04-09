@@ -912,38 +912,51 @@ def refresh_source(source_id):
             
         elif source.type == 'icloud':
             # Récupérer les nouveaux calendriers iCloud
-            credentials = base64.b64decode(source.credentials).decode()
-            username, password = credentials.split(':')
-            
-            client = caldav.DAVClient(
-                url=source.url,
-                username=username,
-                password=password
-            )
-            
-            principal = client.principal()
-            calendars = principal.calendars()
-            
-            for cal in calendars:
-                existing_calendar = Calendar.query.filter_by(
-                    calendar_id=cal.url.path,
-                    source_id=source.id
-                ).first()
+            try:
+                creds_info = json.loads(source.credentials)
+                app.logger.info(f"Credentials trouvés pour la source iCloud {source_id}")
                 
-                if not existing_calendar:
-                    try:
-                        display_name = str(cal.get_properties([dav.DisplayName()])[dav.DisplayName()])
-                    except:
-                        display_name = "Calendrier iCloud"
-                    
-                    new_calendar = Calendar(
-                        name=display_name,
+                if 'username' in creds_info and 'password' in creds_info:
+                    username = creds_info['username']
+                    password = creds_info['password']
+                else:
+                    raise ValueError("Format JSON invalide: champs username/password manquants")
+                
+                client = caldav.DAVClient(
+                    url=source.url,
+                    username=username,
+                    password=password
+                )
+                
+                principal = client.principal()
+                calendars = principal.calendars()
+                
+                for cal in calendars:
+                    existing_calendar = Calendar.query.filter_by(
                         calendar_id=cal.url.path,
-                        color='#FF9500',
-                        user_id=current_user.id,
                         source_id=source.id
-                    )
-                    db.session.add(new_calendar)
+                    ).first()
+                    
+                    if not existing_calendar:
+                        try:
+                            display_name = str(cal.get_properties([dav.DisplayName()])[dav.DisplayName()])
+                        except:
+                            display_name = "Calendrier iCloud"
+                        
+                        new_calendar = Calendar(
+                            name=display_name,
+                            calendar_id=cal.url.path,
+                            color='#FF9500',
+                            user_id=current_user.id,
+                            source_id=source.id
+                        )
+                        db.session.add(new_calendar)
+            except json.JSONDecodeError as e:
+                app.logger.error(f"Erreur de décodage JSON pour la source iCloud {source_id}: {str(e)}")
+                return jsonify({'success': False, 'error': 'Erreur de décodage des credentials'})
+            except Exception as e:
+                app.logger.error(f"Erreur lors du rafraîchissement des calendriers iCloud: {str(e)}")
+                return jsonify({'success': False, 'error': str(e)})
         
         source.last_sync = datetime.now(timezone.utc)
         db.session.commit()
