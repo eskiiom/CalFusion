@@ -481,9 +481,9 @@
                     <a href="{{ url_for('add_icloud_calendar') }}" class="btn btn-secondary w-100 mb-2">
                         <i class="fab fa-apple"></i> Ajouter un calendrier iCloud
                     </a>
-                    <a href="{{ url_for('add_ics_source') }}" class="btn btn-success w-100">
+                    <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addIcsModal">
                         <i class="fas fa-link"></i> Ajouter un calendrier ICS/iCal
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -601,16 +601,19 @@
                         <input type="text" class="form-control" id="icsName" name="name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="icsUrl" class="form-label">URL du calendrier</label>
-                        <input type="url" class="form-control" id="icsUrl" name="url" required 
+                        <label for="icsUrl" class="form-label">URL du calendrier (webcal:// ou https://)</label>
+                        <input type="text" class="form-control" id="icsUrl" name="url" required 
                                placeholder="https://example.com/calendar.ics">
-                        <div class="form-text">L'URL doit pointer vers un fichier .ics ou .ical</div>
+                        <div class="form-text">
+                            Formats acceptés : webcal://, http://, https://<br>
+                            Le calendrier doit être accessible publiquement
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-success" onclick="submitIcsForm()">Ajouter</button>
+                <button type="button" class="btn btn-primary" onclick="addIcsSource()">Ajouter</button>
             </div>
         </div>
     </div>
@@ -977,32 +980,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function submitIcsForm() {
-    const form = document.getElementById('addIcsForm');
+function addIcsSource() {
     const name = document.getElementById('icsName').value;
     const url = document.getElementById('icsUrl').value;
-
-    fetch('/add_ics_calendar', {
+    
+    if (!name || !url) {
+        alert('Veuillez remplir tous les champs');
+        return;
+    }
+    
+    fetch('/sources/add_ics', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            name: name,
-            url: url
-        })
+        body: JSON.stringify({ name, url })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             location.reload();
         } else {
-            alert('Erreur : ' + data.error);
+            alert('Erreur lors de l\'ajout du calendrier : ' + data.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Une erreur est survenue lors de l\'ajout du calendrier.');
+        alert('Erreur lors de l\'ajout du calendrier');
     });
 }
 

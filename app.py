@@ -605,7 +605,6 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
         
         source = calendar.calendar_source
         if not source or not source.credentials:
-            app.logger.error(f"Pas d'informations d'identification pour le calendrier {calendar.name}")
             return []
         
         # Décodage des informations d'identification
@@ -636,11 +635,9 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
             return events
             
         except Exception as e:
-            app.logger.error(f"Erreur lors de la récupération des événements: {str(e)}")
             return []
             
     except Exception as e:
-        app.logger.error(f"Erreur lors de la récupération des événements iCloud: {str(e)}")
         return []
 
 def create_combined_calendar(calendars, start_date=None, end_date=None):
@@ -656,7 +653,6 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
             continue
             
         event_counts[calendar.id] = 0  # Initialiser le compteur pour ce calendrier
-        app.logger.info(f"Traitement du calendrier {calendar.name} (ID: {calendar.id})")
             
         try:
             if calendar.calendar_source.type == 'google':  # Google Calendar
@@ -681,12 +677,10 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
                     event_counts[calendar.id] += 1
                     
             elif calendar.calendar_source.type == 'icloud':  # iCloud Calendar
-                app.logger.info(f"Récupération des événements iCloud pour {calendar.name}")
                 source = calendar.calendar_source
                 
                 # Vérification des credentials avant l'appel
                 if not source or not source.credentials:
-                    app.logger.error(f"Pas de credentials pour le calendrier {calendar.name}")
                     continue
                 
                 # Ajout du padding si nécessaire
@@ -730,11 +724,9 @@ def create_combined_calendar(calendars, start_date=None, end_date=None):
                         event_counts[calendar.id] += 1
                         
                 except Exception as e:
-                    app.logger.error(f"Erreur lors de la récupération des événements iCloud pour {calendar.name}: {str(e)}")
                     continue
                     
         except Exception as e:
-            app.logger.error(f"Erreur lors du traitement du calendrier {calendar.name}: {str(e)}")
             continue
     
     return combined_cal, event_counts
@@ -1028,13 +1020,9 @@ def add_ics_source():
                 flash('URL requise', 'error')
                 return redirect(url_for('index'))
         
-        app.logger.info(f"URL reçue: {url}")
-        
         # Convertir webcal:// en https://
         if url.startswith('webcal://'):
-            app.logger.info("Conversion de webcal:// en https://")
             url = 'https://' + url[9:]
-            app.logger.info(f"URL convertie: {url}")
         
         # Vérifier que l'URL est valide et pointe vers un fichier ICS
         response = requests.get(url)
@@ -1056,7 +1044,6 @@ def add_ics_source():
                         calendar_name = component.get('x-wr-calname', "Calendrier ICS")
                         break
         except Exception as e:
-            app.logger.error(f"Format ICS invalide: {str(e)}")
             if request.is_json:
                 return jsonify({'success': False, 'error': 'Le fichier n\'est pas un calendrier ICS valide'})
             else:
@@ -1095,7 +1082,6 @@ def add_ics_source():
             return redirect(url_for('index'))
             
     except Exception as e:
-        app.logger.error(f"Erreur lors de l'ajout du calendrier ICS: {str(e)}")
         if request.is_json:
             return jsonify({'success': False, 'error': str(e)})
         else:
