@@ -610,8 +610,14 @@ def get_icloud_calendar_events(calendar, start_date=None, end_date=None):
         
         # Décodage des informations d'identification
         try:
-            credentials = base64.b64decode(source.credentials).decode()
-            username, password = credentials.split(':')
+            # Ajout du padding si nécessaire
+            credentials = source.credentials
+            padding = len(credentials) % 4
+            if padding:
+                credentials += '=' * (4 - padding)
+            
+            decoded_credentials = base64.b64decode(credentials).decode()
+            username, password = decoded_credentials.split(':')
             
             # Connexion au calendrier
             client = caldav.DAVClient(
