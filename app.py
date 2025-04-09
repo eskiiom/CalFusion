@@ -1004,35 +1004,68 @@ def disconnect_source(source_id):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/sources/add_ics', methods=['POST'])
+@app.route('/sources/add_ics', methods=['GET', 'POST'])
 @login_required
 def add_ics_source():
     """Ajoute une nouvelle source de calendrier ICS."""
-    try:
-        data = request.json
-        name = data.get('name')
-        url = data.get('url')
+    if request.method == 'GET':
+        return render_template('add_ics.html')
         
-        if not name or not url:
-            return jsonify({'success': False, 'error': 'Nom et URL requis'})
+    try:
+        # Récupérer les données selon le type de requête
+        if request.is_json:
+            data = request.json
+            name = data.get('name')
+            url = data.get('url')
+        else:
+            name = None
+            url = request.form.get('url')
+            
+        if not url:
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'URL requise'})
+            else:
+                flash('URL requise', 'error')
+                return redirect(url_for('index'))
+        
+        app.logger.info(f"URL reçue: {url}")
+        
+        # Convertir webcal:// en https://
+        if url.startswith('webcal://'):
+            app.logger.info("Conversion de webcal:// en https://")
+            url = 'https://' + url[9:]
+            app.logger.info(f"URL convertie: {url}")
         
         # Vérifier que l'URL est valide et pointe vers un fichier ICS
-        if url.startswith('webcal://'):
-            url = 'https://' + url[9:]
-        
         response = requests.get(url)
         if response.status_code != 200:
-            return jsonify({'success': False, 'error': 'URL invalide'})
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'URL invalide'})
+            else:
+                flash('URL invalide', 'error')
+                return redirect(url_for('index'))
         
         # Vérifier que le contenu est bien un calendrier ICS
         try:
-            Calendar.from_ical(response.content)
-        except:
-            return jsonify({'success': False, 'error': 'Le fichier n\'est pas un calendrier ICS valide'})
+            calendar = ICalendar.from_ical(response.content)
+            # Essayer de trouver un nom pour le calendrier
+            calendar_name = name or "Calendrier ICS"
+            if not name:
+                for component in calendar.walk():
+                    if component.name == "VCALENDAR":
+                        calendar_name = component.get('x-wr-calname', "Calendrier ICS")
+                        break
+        except Exception as e:
+            app.logger.error(f"Format ICS invalide: {str(e)}")
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'Le fichier n\'est pas un calendrier ICS valide'})
+            else:
+                flash('Le fichier n\'est pas un calendrier ICS valide', 'error')
+                return redirect(url_for('index'))
         
         # Créer la source
         source = CalendarSource(
-            name=name,
+            name=calendar_name,
             type='ics',
             url=url,
             user_id=current_user.id,
@@ -1040,10 +1073,11 @@ def add_ics_source():
             last_sync=datetime.now(timezone.utc)
         )
         db.session.add(source)
+        db.session.flush()
         
         # Créer le calendrier associé
         calendar = Calendar(
-            name=name,
+            name=calendar_name,
             calendar_id=url,
             color='#28a745',
             user_id=current_user.id,
@@ -1053,9 +1087,20 @@ def add_ics_source():
         db.session.add(calendar)
         
         db.session.commit()
-        return jsonify({'success': True})
+        
+        if request.is_json:
+            return jsonify({'success': True})
+        else:
+            flash('Calendrier ICS ajouté avec succès!', 'success')
+            return redirect(url_for('index'))
+            
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        app.logger.error(f"Erreur lors de l'ajout du calendrier ICS: {str(e)}")
+        if request.is_json:
+            return jsonify({'success': False, 'error': str(e)})
+        else:
+            flash(f'Erreur lors de l\'ajout du calendrier: {str(e)}', 'error')
+            return redirect(url_for('index'))
 
 @app.route('/sources/<int:source_id>', methods=['GET'])
 @login_required
@@ -1421,80 +1466,6 @@ def reorder_calendars():
 def shortcuts():
     """Affiche la page des raccourcis clavier."""
     return render_template('shortcuts.html')
-
-@app.route('/add_ics_calendar', methods=['GET', 'POST'])
-@login_required
-def add_ics_calendar():
-    """Ajoute un calendrier ICS via URL."""
-    if request.method == 'GET':
-        return render_template('add_ics.html')
-        
-    if request.method == 'POST':
-        try:
-            url = request.form.get('url')
-            if not url:
-                flash('URL requise', 'error')
-                return redirect(url_for('index'))
-            
-            app.logger.info(f"URL reçue: {url}")
-            
-            # Convertir webcal:// en https://
-            if url.startswith('webcal://'):
-                app.logger.info("Conversion de webcal:// en https://")
-                url = 'https://' + url[9:]
-                app.logger.info(f"URL convertie: {url}")
-            
-            # Vérifier que l'URL est valide et pointe vers un fichier ICS
-            response = requests.get(url)
-            if response.status_code != 200:
-                flash('URL invalide', 'error')
-                return redirect(url_for('index'))
-            
-            # Vérifier que le contenu est bien un calendrier ICS
-            try:
-                calendar = ICalendar.from_ical(response.content)
-                # Essayer de trouver un nom pour le calendrier
-                calendar_name = "Calendrier ICS"
-                for component in calendar.walk():
-                    if component.name == "VCALENDAR":
-                        calendar_name = component.get('x-wr-calname', "Calendrier ICS")
-                        break
-            except Exception as e:
-                app.logger.error(f"Format ICS invalide: {str(e)}")
-                flash('Le fichier n\'est pas un calendrier ICS valide', 'error')
-                return redirect(url_for('index'))
-            
-            # Créer la source
-            source = CalendarSource(
-                name=calendar_name,
-                type='ics',
-                url=url,
-                user_id=current_user.id,
-                is_connected=True,
-                last_sync=datetime.now(timezone.utc)
-            )
-            db.session.add(source)
-            db.session.flush()
-            
-            # Créer le calendrier associé
-            calendar = Calendar(
-                name=calendar_name,
-                calendar_id=url,
-                color='#28a745',
-                user_id=current_user.id,
-                source_id=source.id,
-                active=True
-            )
-            db.session.add(calendar)
-            
-            db.session.commit()
-            flash('Calendrier ICS ajouté avec succès!', 'success')
-            return redirect(url_for('index'))
-            
-        except Exception as e:
-            app.logger.error(f"Erreur lors de l'ajout du calendrier ICS: {str(e)}")
-            flash(f'Erreur lors de l\'ajout du calendrier: {str(e)}', 'error')
-            return redirect(url_for('index'))
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
