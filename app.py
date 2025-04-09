@@ -20,7 +20,6 @@ import secrets
 import requests
 from sqlalchemy import text
 from functools import lru_cache
-from flask_wtf.csrf import CSRFProtect
 
 load_dotenv()
 
@@ -42,7 +41,6 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here') 
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)  # Session de 31 jours
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
-csrf = CSRFProtect(app)  # Activer la protection CSRF
 
 # Configuration de la base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendars.db'
